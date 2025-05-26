@@ -15,6 +15,10 @@ app.get('/api/saludo', (req, res) => {
   res.json({ mensaje: 'Bienvenido a Sentirse Bien API 🧖‍♀️' });
 });
 
+app.get('/', (req, res) => {
+  res.send('¡Bienvenido al backend del Spa "Sentirse Bien"! 🌿');
+});
+
 // Escuchar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
