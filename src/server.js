@@ -1,33 +1,53 @@
 const express = require('express');
+const mysql = require('mysql2');
 const cors = require('cors');
-const db = require('./db');
-require('dotenv').config();
+const path = require('path'); // Importa path para manejar rutas
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 12571;
 
-// Middlewares
+// Habilitar CORS
 app.use(cors());
-app.use(express.json());
-app.use(express.static('public')); // para servir los HTML estáticos
 
-app.get('/api/servicios', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM servicios');
-    res.json(rows); // ¡esto debe devolver un JSON!
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al obtener servicios' });
+// Configuración de la base de datos
+const db = mysql.createConnection({
+  host: 'caboose.proxy.rlwy.net',
+  user: 'root',
+  password: 'JAOeqdyHCuCpLMncvXfihQOVMwIowkbz',
+  database: 'sentirsebienspa',
+});
+
+// Conexión a la base de datos
+db.connect((err) => {
+  if (err) {
+    console.error('Error al conectar a la base de datos:', err);
+    return;
   }
+  console.log('Conexión exitosa a la base de datos.');
 });
 
+// Servir archivos estáticos desde la carpeta "public"
+app.use(express.static(path.join(__dirname, '../public')));
 
+// Ruta para la raíz
 app.get('/', (req, res) => {
-  res.send('¡Bienvenido al backend del Spa "Sentirse Bien"! 🌿');
+  res.send('Bienvenido al backend de Spa Sentirse Bien');
 });
 
-// Escuchar servidor
+// Endpoint para obtener los servicios
+app.get('/api/servicios', (req, res) => {
+  const query = 'SELECT * FROM servicios';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error al obtener los servicios:', err);
+      res.status(500).send('Error al obtener los servicios');
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
-

@@ -8,132 +8,99 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
-  <div class="container">
-    <a class="navbar-brand" href="#inicio">Sentirse Bien</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="#inicio">Inicio</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#quienes-somos">¿Quiénes somos?</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#servicios">Servicios</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="https://wa.me/549XXXXXXXXXX" target="_blank">Contacto WhatsApp</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- BIENVENIDA -->
-<section id="inicio" class="hero">
-  <div class="container">
-    <h1 class="bienvenida-text">Bienvenidos a Spa <em class="sentirse-bien">"Sentirse Bien"</em></h1>
-    <p class="lead">Donde tu bienestar es nuestra prioridad 🌿</p>
-  </div>
-</section>
-
-<!-- QUIÉNES SOMOS -->
-<section id="quienes-somos" class="py-5" style="background-color: var(--crema);">
-  <div class="container">
-    <h2 class="text-center mb-4">¿Quiénes somos?</h2>
-    <div class="row align-items-center">
-      <div class="col-md-6">
-        <p class="quienes-somos-class">
-          En el Spa <strong>"Sentirse Bien"</strong>, nos dedicamos con pasión al cuidado de tu cuerpo, mente y espíritu.
-          Fundado por la Dra. Ana Felicidad, nuestro espacio combina años de experiencia con un enfoque humano, 
-          personalizado y relajante. Nuestro equipo está conformado por profesionales altamente capacitados en estética, 
-          masoterapia y bienestar integral.
-        </p>
-        <br>
-        <p class="quienes-somos-class">
-          Creemos que cada persona merece un momento de paz, de reconexión, de sentirse bien consigo misma. 
-          Por eso ofrecemos una variedad de tratamientos individuales y grupales diseñados para cada necesidad.
-        </p>
+  <div class="background-slideshow"></div> <!-- Fondo dinámico -->
+  <div class="content">
+    <!-- Todo tu contenido existente -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
+      <div class="container">
+        <a class="navbar-brand" href="#inicio">Sentirse Bien</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#inicio">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#quienes-somos">¿Quiénes somos?</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#servicios">Servicios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://wa.me/549XXXXXXXXXX" target="_blank">Contacto WhatsApp</a>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="col-md-6 text-center">
-        <img src="spa-images/spa-image.jpg"
-             class="img-fluid rounded shadow" alt="Imagen del Spa">
+    </nav>
+
+    <section id="inicio" class="hero">
+      <div class="container">
+        <h1 class="bienvenida-text">Bienvenidos a Spa <em class="sentirse-bien">"Sentirse Bien"</em></h1>
+        <p class="lead">Donde tu bienestar es nuestra prioridad 🌿</p>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- SERVICIOS -->
-<section id="servicios" class="py-5" style="background-color: var(--light-bg);">
-  <div class="container">
-    <h2 class="text-center mb-4">Nuestros Servicios</h2>
-
-    <div class="carousel-wrapper overflow-hidden position-relative">
-      <div id="carrusel-servicios" class="d-flex flex-nowrap gap-4"></div>
-    </div>
-
-    <div class="text-center mt-5">
-      <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#formularioModal">
-        Solicitar un turno
-      </button>
-    </div>
-  </div>
-</section>
-
-
-<!-- MODAL FORMULARIO (incompleto) -->
-<div class="modal fade" id="formularioModal" tabindex="-1" aria-labelledby="formularioModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="formularioModalLabel">Solicitar Turno</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <p>Aquí irá el formulario próximamente.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="container">
-    <p class="mb-0">© 2025 Spa "Sentirse Bien" - Todos los derechos reservados</p>
-  </div>
-</footer>
-
-<script>
-  fetch('/api/servicios')
-    .then(res => res.json())
-    .then(data => {
-      const carrusel = document.getElementById('carrusel-servicios');
-
-      // duplicamos los servicios para que el scroll sea infinito
-      const servicios = [...data, ...data];
-
-      servicios.forEach((servicio, index) => {
-        const imgIndex = (index % data.length) + 1; // asumiendo imágenes 1.jpg a 10.jpg
-        const imgPath = `spa-images/services/${imgIndex}.jpg`;
-
-        carrusel.innerHTML += `
-          <div class="card shadow-sm">
-            <img src="${imgPath}" alt="Servicio: ${servicio.nombre}" onerror="this.src='/spa-images/error-image-default.jpg'">
-            <div class="card-body p-2">
-              <h6 class="card-title mb-0">${servicio.nombre}</h6>
-            </div>
+    <!-- QUIÉNES SOMOS -->
+    <section id="quienes-somos" class="py-5" style="background-color: var(--crema);">
+      <div class="container">
+        <h2 class="text-center mb-4">¿Quiénes somos?</h2>
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <p class="quienes-somos-class">
+              En el Spa <strong>"Sentirse Bien"</strong>, nos dedicamos con pasión al cuidado de tu cuerpo, mente y espíritu.
+              Fundado por la Dra. Ana Felicidad, nuestro espacio combina años de experiencia con un enfoque humano, 
+              personalizado y relajante. Nuestro equipo está conformado por profesionales altamente capacitados en estética, 
+              masoterapia y bienestar integral.
+            </p>
+            <br>
+            <p class="quienes-somos-class">
+              Creemos que cada persona merece un momento de paz, de reconexión, de sentirse bien consigo misma. 
+              Por eso ofrecemos una variedad de tratamientos individuales y grupales diseñados para cada necesidad.
+            </p>
           </div>
-        `;
-      });
-    });
-</script>
+          <div class="col-md-6 text-center">
+            <img src="spa-images/spa-image.jpg"
+                 class="img-fluid rounded shadow" alt="Imagen del Spa">
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- SERVICIOS -->
+    <section id="servicios" class="py-5" style="background-color: var(--light-bg);">
+      <div class="container">
+        <h2 class="text-center mb-4">Nuestros Servicios</h2>
+        <div id="servicios-container" class="row gy-4">
+          <!-- Aquí se insertarán dinámicamente las etiquetas de los servicios -->
+        </div>
+      </div>
+    </section>
 
+    <!-- MODAL FORMULARIO (incompleto) -->
+    <div class="modal fade" id="formularioModal" tabindex="-1" aria-labelledby="formularioModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="formularioModalLabel">Solicitar Turno</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <p>Aquí irá el formulario próximamente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="container">
+        <p class="mb-0">© 2025 Spa "Sentirse Bien" - Todos los derechos reservados - mApache </p>
+      </div>
+    </footer>
+  </div>
+  
 </body>
 </html>
