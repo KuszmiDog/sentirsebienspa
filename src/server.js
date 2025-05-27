@@ -10,9 +10,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public')); // para servir los HTML estáticos
 
-// Ruta de prueba
-app.get('/api/saludo', (req, res) => {
-  res.json({ mensaje: 'Bienvenido a Sentirse Bien API 🧖‍♀️' });
+const express = require('express');
+const cors = require('cors');
+const db = require('./db');
+
+app.get('/api/servicios', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM servicios');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener servicios' });
+  }
 });
 
 app.get('/', (req, res) => {
@@ -23,3 +31,4 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+
