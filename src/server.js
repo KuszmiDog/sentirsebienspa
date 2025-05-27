@@ -1,30 +1,14 @@
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
-const path = require('path'); // Importa path para manejar rutas
+const path = require('path');
+const pool = require('./db'); // Asegúrate de que la ruta sea correcta
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Habilitar CORS
 app.use(cors());
-
-// Configuración de la base de datos
-const db = mysql.createConnection({
-  host: 'caboose.proxy.rlwy.net',
-  user: 'root',
-  password: 'JAOeqdyHCuCpLMncvXfihQOVMwIowkbz',
-  database: 'sentirsebienspa',
-});
-
-// Conexión a la base de datos
-db.connect((err) => {
-  if (err) {
-    console.error('Error al conectar a la base de datos:', err);
-    return;
-  }
-  console.log('Conexión exitosa a la base de datos.');
-});
 
 // Servir archivos estáticos desde la carpeta "public"
 app.use(express.static(path.join(__dirname, '../public')));
@@ -35,19 +19,28 @@ app.get('/', (req, res) => {
 });
 
 // Endpoint para obtener los servicios
-app.get('/api/servicios', (req, res) => {
-  const query = 'SELECT * FROM servicios';
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error al obtener los servicios:', err);
-      res.status(500).send('Error al obtener los servicios');
-      return;
-    }
-    res.json(results);
-  });
+app.get('/api/servicios', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM servicios');
+    res.json(rows);
+  } catch (err) {
+    console.error('Error al obtener los servicios:', err);
+    res.status(500).send('Error al obtener los servicios');
+  }
 });
+
+// Verificación de conexión (opcional)
+(async () => {
+  try {
+    const connection = await pool.getConnection();
+    console.log('✅ Conexión exitosa a la base de datos.');
+    connection.release();
+  } catch (err) {
+    console.error('❌ Error al conectar a la base de datos:', err);
+  }
+})();
 
 // Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
