@@ -14,11 +14,13 @@ app.use(express.static('public')); // para servir los HTML estáticos
 app.get('/api/servicios', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM servicios');
-    res.json(rows);
+    res.json(rows); // ¡esto debe devolver un JSON!
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error al obtener servicios' });
   }
 });
+
 
 app.get('/', (req, res) => {
   res.send('¡Bienvenido al backend del Spa "Sentirse Bien"! 🌿');

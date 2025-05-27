@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spa Sentirse Bien</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -22,6 +22,12 @@
           <a class="nav-link" href="#inicio">Inicio</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="#quienes-somos">¿Quiénes somos?</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#servicios">Servicios</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="https://wa.me/549XXXXXXXXXX" target="_blank">Contacto WhatsApp</a>
         </li>
       </ul>
@@ -32,16 +38,45 @@
 <!-- BIENVENIDA -->
 <section id="inicio" class="hero">
   <div class="container">
-    <h1 class="display-4">Bienvenidos a Spa <em>"Sentirse Bien"</em></h1>
+    <h1 class="bienvenida-text">Bienvenidos a Spa <em class="sentirse-bien">"Sentirse Bien"</em></h1>
     <p class="lead">Donde tu bienestar es nuestra prioridad 🌿</p>
   </div>
 </section>
 
-<!-- SERVICIOS -->
-<section id="servicios" class="servicios">
+<!-- QUIÉNES SOMOS -->
+<section id="quienes-somos" class="py-5" style="background-color: var(--crema);">
   <div class="container">
-    <h2 class="text-center mb-5">Nuestros Servicios</h2>
-    <div id="contenedor-servicios" class="row"></div>
+    <h2 class="text-center mb-4">¿Quiénes somos?</h2>
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <p class="quienes-somos-class">
+          En el Spa <strong>"Sentirse Bien"</strong>, nos dedicamos con pasión al cuidado de tu cuerpo, mente y espíritu.
+          Fundado por la Dra. Ana Felicidad, nuestro espacio combina años de experiencia con un enfoque humano, 
+          personalizado y relajante. Nuestro equipo está conformado por profesionales altamente capacitados en estética, 
+          masoterapia y bienestar integral.
+        </p>
+        <br>
+        <p class="quienes-somos-class">
+          Creemos que cada persona merece un momento de paz, de reconexión, de sentirse bien consigo misma. 
+          Por eso ofrecemos una variedad de tratamientos individuales y grupales diseñados para cada necesidad.
+        </p>
+      </div>
+      <div class="col-md-6 text-center">
+        <img src="spa-images/spa-image.jpg"
+             class="img-fluid rounded shadow" alt="Imagen del Spa">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios" class="py-5" style="background-color: var(--light-bg);">
+  <div class="container">
+    <h2 class="text-center mb-4">Nuestros Servicios</h2>
+
+    <div class="carousel-wrapper overflow-hidden position-relative">
+      <div id="carrusel-servicios" class="d-flex flex-nowrap gap-4"></div>
+    </div>
 
     <div class="text-center mt-5">
       <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#formularioModal">
@@ -50,6 +85,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- MODAL FORMULARIO (incompleto) -->
 <div class="modal fade" id="formularioModal" tabindex="-1" aria-labelledby="formularioModalLabel" aria-hidden="true">
@@ -73,29 +109,31 @@
   </div>
 </footer>
 
-<!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Cargar servicios desde el backend
   fetch('/api/servicios')
     .then(res => res.json())
     .then(data => {
-      const contenedor = document.getElementById('contenedor-servicios');
-      data.forEach(servicio => {
-        contenedor.innerHTML += `
-          <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title">${servicio.nombre}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">${servicio.tipo}</h6>
-                <p class="card-text">${servicio.descripcion}</p>
-              </div>
+      const carrusel = document.getElementById('carrusel-servicios');
+
+      // duplicamos los servicios para que el scroll sea infinito
+      const servicios = [...data, ...data];
+
+      servicios.forEach((servicio, index) => {
+        const imgIndex = (index % data.length) + 1; // asumiendo imágenes 1.jpg a 10.jpg
+        const imgPath = `spa-images/services/${imgIndex}.jpg`;
+
+        carrusel.innerHTML += `
+          <div class="card shadow-sm">
+            <img src="${imgPath}" alt="Servicio: ${servicio.nombre}" onerror="this.src='/spa-images/error-image-default.jpg'">
+            <div class="card-body p-2">
+              <h6 class="card-title mb-0">${servicio.nombre}</h6>
             </div>
           </div>
         `;
       });
     });
 </script>
+
 
 </body>
 </html>
