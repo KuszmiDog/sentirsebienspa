@@ -1,0 +1,111 @@
+/* Paleta de colores pastel */
+:root {
+    --rosa: #FFDCDC;
+    --crema: #FFF2EB;
+    --beige: #FFE8CD;
+    --durazno: #FFD6BA;
+  
+    --primary: var(--rosa);
+    --secondary: var(--durazno);
+    --light-bg: var(--crema);
+    --accent: var(--beige);
+    --text-dark: #5c5c5c;
+    --text-light: #ffffff;
+  }
+  
+  /* Reset y estructura */
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+  }
+  
+  /* Navbar */
+  .navbar {
+    background-color: var(--rosa) !important;
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+  }
+  
+  .nav-link {
+    color: var(--text-dark) !important;
+    font-weight: 500;
+  }
+  
+  .nav-link:hover {
+    color: var(--secondary) !important;
+  }
+  
+  /* Hero/Bienvenida */
+  .hero {
+    background-color: var(--rosa);
+    padding: 100px 0;
+    color: var(--text-dark);
+    text-align: center;
+  }
+  
+  .hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero p {
+    font-size: 1.25rem;
+  }
+  
+  /* Servicios */
+  .servicios {
+    background-color: var(--light-bg);
+    padding: 60px 0;
+  }
+  
+  .card {
+    border: none;
+    border-radius: 12px;
+    background-color: var(--accent);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Botones */
+  .btn-primary {
+    background-color: var(--durazno);
+    border-color: var(--durazno);
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--rosa);
+    border-color: var(--rosa);
+  }
+  
+  /* Modal */
+  .modal-content {
+    border-radius: 12px;
+    background-color: var(--crema);
+  }
+  
+  .modal-header {
+    background-color: var(--rosa);
+    color: var(--text-dark);
+  }
+  
+  /* Footer o secciones adicionales (opcional) */
+  footer {
+    background-color: var(--durazno);
+    color: var(--text-dark);
+    padding: 20px 0;
+    text-align: center;
+    margin-top: 50px;
+  }
+  

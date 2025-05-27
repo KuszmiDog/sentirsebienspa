@@ -5,24 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spa Sentirse Bien</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      scroll-behavior: smooth;
-    }
-    .hero {
-      padding: 100px 0;
-      background-color: #f8f9fa;
-      text-align: center;
-    }
-    .servicios {
-      padding: 60px 0;
-    }
-  </style>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
   <div class="container">
     <a class="navbar-brand" href="#inicio">Sentirse Bien</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -44,17 +32,17 @@
 <!-- BIENVENIDA -->
 <section id="inicio" class="hero">
   <div class="container">
-    <h1 class="display-4">Bienvenidos a Spa "Sentirse Bien"</h1>
+    <h1 class="display-4">Bienvenidos a Spa <em>"Sentirse Bien"</em></h1>
     <p class="lead">Donde tu bienestar es nuestra prioridad 🌿</p>
   </div>
 </section>
 
 <!-- SERVICIOS -->
-<section id="servicios" class="servicios bg-white">
+<section id="servicios" class="servicios">
   <div class="container">
     <h2 class="text-center mb-5">Nuestros Servicios</h2>
     <div id="contenedor-servicios" class="row"></div>
-    
+
     <div class="text-center mt-5">
       <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#formularioModal">
         Solicitar un turno
@@ -77,6 +65,13 @@
     </div>
   </div>
 </div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p class="mb-0">© 2025 Spa "Sentirse Bien" - Todos los derechos reservados</p>
+  </div>
+</footer>
 
 <!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
