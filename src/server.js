@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path'); // Importa path para manejar rutas
 
 const app = express();
-const PORT = 12571;
+const PORT = 3000;
 
 // Habilitar CORS
 app.use(cors());
