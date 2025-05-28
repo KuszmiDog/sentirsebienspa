@@ -13,11 +13,6 @@ app.use(cors());
 // Servir archivos estáticos desde la carpeta "public"
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Ruta para la raíz
-app.get('/', (req, res) => {
-  res.send('Bienvenido al backend de Spa Sentirse Bien');
-});
-
 // Endpoint para obtener los servicios
 app.get('/api/servicios', async (req, res) => {
   try {
