@@ -1,0 +1,166 @@
+/* Paleta de colores pastel */
+:root {
+    --rosa: #FFDCDC;
+    --crema: #FFF2EB;
+    --beige: #FFE8CD;
+    --durazno: #FFD6BA;
+  
+    --primary: var(--rosa);
+    --secondary: var(--durazno);
+    --light-bg: var(--crema);
+    --accent: var(--beige);
+    --text-dark: #5c5c5c;
+    --text-light: #ffffff;
+  }
+  
+  /* Reset y estructura */
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+  }
+  
+  /* Fondo con slideshow */
+  .background-slideshow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Coloca el fondo detrás del contenido */
+    overflow: hidden;
+    pointer-events: none; /* Evita que el fondo interfiera con el scroll */
+  }
+  
+  .background-slideshow img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+  }
+  
+  .background-slideshow img.active {
+    opacity: 1;
+  }
+  
+  /* Navbar */
+  .navbar {
+    background-color: var(--rosa) !important;
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+  }
+  
+  .nav-link {
+    color: var(--text-dark) !important;
+    font-weight: 500;
+  }
+  
+  .nav-link:hover {
+    color: var(--secondary) !important;
+  }
+  
+  /* Hero/Bienvenida */
+  .hero {
+    background-color: var(--rosa);
+    padding: 100px 0;
+    color: var(--text-dark);
+    text-align: center;
+  }
+  
+  .hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero p {
+    font-size: 1.25rem;
+  }
+  
+  /* Servicios */
+  .servicios {
+    background-color: var(--light-bg);
+    padding: 60px 0;
+  }
+  
+  .card {
+    border: none;
+    border-radius: 12px;
+    background-color: var(--accent);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Botones */
+  .btn-primary {
+    background-color: var(--durazno);
+    border-color: var(--durazno);
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--rosa);
+    border-color: var(--rosa);
+  }
+  
+  /* Modal */
+  .modal-content {
+    border-radius: 12px;
+    background-color: var(--crema);
+  }
+  
+  .modal-header {
+    background-color: var(--rosa);
+    color: var(--text-dark);
+  }
+  
+  /* Footer o secciones adicionales (opcional) */
+  footer {
+    background-color: var(--durazno);
+    color: var(--text-dark);
+    padding: 20px 0;
+    top: 40;
+    text-align: center;
+    
+  }
+
+  .quienes-somos-class {
+    padding-top: 10;
+    color: #363636;
+    font-size: larger;
+    font-weight: 300;
+  }
+
+  .bienvenida-text {
+    padding-top: 10;
+    color: #363636;
+    font-size: larger;
+    font-weight: 300;
+  }
+
+  .sentirse-bien {
+    font-weight: 500;
+    color: #535353;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1; /* Asegura que el contenido esté por encima del fondo */
+  }
