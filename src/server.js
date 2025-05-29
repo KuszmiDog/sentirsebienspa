@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const pool = require('./db'); // Asegúrate de que la ruta sea correcta
+const pool = require('../src/db'); // Asegúrate de que la ruta sea correcta
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.set('view engine', 'ejs');
 
 // Habilitar CORS
 app.use(cors());
@@ -13,21 +15,17 @@ app.use(cors());
 // Servir archivos estáticos desde la carpeta "public"
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Ruta para la raíz
-app.get('/', (req, res) => {
-  res.send('Bienvenido al backend de Spa Sentirse Bien');
-});
-
-// Endpoint para obtener los servicios
+//API para ver los servicios
 app.get('/api/servicios', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM servicios');
     res.json(rows);
   } catch (err) {
-    console.error('Error al obtener los servicios:', err);
-    res.status(500).send('Error al obtener los servicios');
+    console.error('Error al consultar servicios:', err);
+    res.status(500).json({ error: 'Error en la base de datos' });
   }
 });
+
 
 // Verificación de conexión (opcional)
 (async () => {
