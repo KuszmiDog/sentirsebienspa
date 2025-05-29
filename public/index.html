@@ -7,39 +7,13 @@
     <title>SPA Sentirse Bien</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic&amp;display=swap">
+    href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic&amp;display=swap">
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
     <link rel="stylesheet" href="assets/fonts/simple-line-icons.min.css">
     <link rel="stylesheet" href="assets/fonts/typicons.min.css">
     <link rel="stylesheet" href="assets/css/aos.min.css">
     <link rel="stylesheet" href="assets/css/animate.min.css">
-    <style>
-        .navbar-transparent {
-            background: rgba(255, 255, 255, 0.15);
-            /* Celeste fuerte con transparencia */
-            box-shadow: none;
-            transition: background 0.3s, box-shadow 0.3s;
-            backdrop-filter: blur(10px);
-            /* Efecto glassmorphism opcional */
-        }
-
-        .navbar-transparent .navbar-nav .nav-link,
-        .navbar-transparent .navbar-brand {
-            color: #ffffff !important;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
-            font-weight: bold;
-
-        }
-
-        header.masthead {
-            width: 100vw;
-            margin-left: calc(50% - 50vw);
-            background-size: cover !important;
-            background-position: center center !important;
-            background-repeat: no-repeat !important;
-            min-height: 90vh;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/service-style.css">
 </head>
 
 <body>
@@ -224,47 +198,34 @@
             </div>
         </div>
     </section>
+
+    <h1 data-aos="fade-down" data-aos-duration="450">¡Nuestros Servicios!</h1>
+    <div id="contenedor-servicios" class="contenedor-servicios">
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                fetch('/api/servicios')
+                    .then(res => res.json())
+                    .then(servicios => {
+                        const contenedor = document.getElementById('contenedor-servicios');
+                        servicios.forEach(servicio => {
+                            const div = document.createElement('div');
+                            div.className = 'etiqueta-servicio';
+                            div.innerHTML = `
+                                <h3>${servicio.nombre}</h3>
+                                <p>${servicio.descripcion}</p>
+                                <small><strong>Tipo:</strong> ${servicio.tipo}</small>
+                            `;
+                            contenedor.appendChild(div);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Error cargando servicios:', err);
+                    });
+            });
+        </script>
+    </div>
     <footer class="bg-light d-flex flex-column justify-content-center align-items-center footer">
-        <h1 data-aos="fade-down" data-aos-duration="450">¡Nuestros Servicios!</h1>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="carousel slide mx-auto" data-bs-ride="false" id="carousel-1">
-                        <div class="carousel-inner">
-                            <div class="carousel-item active"><img class="w-100 d-block"
-                                    src="https://javierico.neocities.org/img/img01.jpg" alt="Slide Image"></div>
-                            <div class="carousel-item"><img class="w-100 d-block" data-aos="fade-up" data-aos-duration="450"
-                                    src="https://i.redd.it/ock6i5drreq21.png" alt="Slide Image"></div>
-                            <div class="carousel-item"><img class="w-100 d-block"
-                                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuC2XRYQfbmJOnXOAf1Dj-34aM8J5IafZKDA&s"
-                                    alt="Slide Image"></div>
-                            <div class="carousel-item"><img class="w-100 d-block"
-                                    src="https://bleedingcool.com/wp-content/uploads/2021/06/Pikachu-color-model-publicity-cel-900x900.jpg"
-                                    alt="Slide Image"></div>
-                            <div class="carousel-item"><img class="w-100 d-block"
-                                    src="https://www.attica21hotels.com/wp-content/uploads/2022/11/attica-bcn-073-baja-900x900.jpg"
-                                    alt="Slide Image"></div>
-                            <div class="carousel-item"><img class="w-100 d-block"
-                                    src="https://media.vogue.es/photos/67dbfd24b8cbc07fb7b788bf/1:1/w_900,h_900,c_limit/cover.jpg"
-                                    alt="Slide Image"></div>
-                        </div>
-                        <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-bs-slide="prev"><span
-                                    class="carousel-control-prev-icon"></span><span
-                                    class="visually-hidden">Previous</span></a><a class="carousel-control-next"
-                                href="#carousel-1" role="button" data-bs-slide="next"><span
-                                    class="carousel-control-next-icon"></span><span class="visually-hidden">Next</span></a>
-                        </div>
-                        <div class="carousel-indicators"><button type="button" data-bs-target="#carousel-1" data-bs-slide-to="0"
-                                class="active"></button> <button type="button" data-bs-target="#carousel-1"
-                                data-bs-slide-to="1"></button> <button type="button" data-bs-target="#carousel-1"
-                                data-bs-slide-to="2"></button> <button type="button" data-bs-target="#carousel-1"
-                                data-bs-slide-to="3"></button> <button type="button" data-bs-target="#carousel-1"
-                                data-bs-slide-to="4"></button> <button type="button" data-bs-target="#carousel-1"
-                                data-bs-slide-to="5"></button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 text-center text-lg-start my-auto h-100">

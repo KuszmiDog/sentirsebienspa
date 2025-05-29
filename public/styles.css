@@ -164,3 +164,119 @@
     position: relative;
     z-index: 1; /* Asegura que el contenido esté por encima del fondo */
   }
+/* Contenedor en filas, de izquierda a derecha */
+.contenedor-servicios {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 20px auto;
+  gap: 20px;
+  padding: 10px;
+}
+
+/* Tarjetas individuales de servicio */
+.etiqueta-servicio {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 280px;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.etiqueta-servicio:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.etiqueta-servicio h3 {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.etiqueta-servicio p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.etiqueta-servicio small {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.navbar-transparent {
+  background: rgba(255, 255, 255, 0.15);
+  /* Celeste fuerte con transparencia */
+  box-shadow: none;
+  transition: background 0.3s, box-shadow 0.3s;
+  backdrop-filter: blur(10px);
+  /* Efecto glassmorphism opcional */
+}
+
+.navbar-transparent .navbar-nav .nav-link,
+.navbar-transparent .navbar-brand {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  font-weight: bold;
+
+}
+
+header.masthead {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  min-height: 90vh;
+}
+
+/* Estilo para el contenedor de servicios */
+#contenedor-servicios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  /* Espacio entre las tarjetas */
+  justify-content: center;
+  /* Centrar las tarjetas horizontalmente */
+  padding: 20px;
+}
+
+/* Estilo para cada tarjeta de servicio */
+.etiqueta-servicio {
+  background-color: #f8f9fa;
+  /* Fondo claro */
+  border: 1px solid #ddd;
+  /* Borde ligero */
+  border-radius: 8px;
+  /* Bordes redondeados */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Sombra ligera */
+  padding: 15px;
+  width: 300px;
+  /* Ancho fijo para las tarjetas */
+  text-align: center;
+  /* Centrar contenido */
+}
+
+.etiqueta-servicio h3 {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.etiqueta-servicio p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.etiqueta-servicio small {
+  font-size: 0.9rem;
+  color: #777;
+}

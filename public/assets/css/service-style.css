@@ -1,0 +1,36 @@
+/* Estilo para el contenedor de servicios */
+#contenedor-servicios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Espacio entre las tarjetas */
+    justify-content: center; /* Centrar las tarjetas horizontalmente */
+    padding: 20px;
+}
+
+/* Estilo para cada tarjeta de servicio */
+.etiqueta-servicio {
+    background-color: #f8f9fa; /* Fondo claro */
+    border: 1px solid #ddd; /* Borde ligero */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+    padding: 15px;
+    width: 300px; /* Ancho fijo para las tarjetas */
+    text-align: center; /* Centrar contenido */
+}
+
+.etiqueta-servicio h3 {
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.etiqueta-servicio p {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.etiqueta-servicio small {
+    font-size: 0.9rem;
+    color: #777;
+}
