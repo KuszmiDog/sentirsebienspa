@@ -34,3 +34,10 @@
     font-size: 0.9rem;
     color: #777;
 }
+
+
+.nuestros-servicios {
+    font: 400 1.5rem 'Segoe UI', sans-serif;
+    position: relative;
+    text-align: center;
+  }
