@@ -45,7 +45,7 @@
     <!-- Aquí comienza el contenido principal de la página -->
 
     <header class="text-center text-white masthead" id="header"
-        style="background:url('assets/img/bg-masthead.jpg')no-repeat center center;background-size:cover;">
+        style="background:url('assets/img/drawbackground.jpg')no-repeat center center;background-size:cover; background-position: bottom;">
         <div class="overlay">
             <div class="overlay"></div>
         </div>
@@ -231,6 +231,141 @@
             });
         </script>
     </div>
+
+        <!-- Button to trigger modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#turnoModal" style="display: block; size: 100px; height: 70px; width: 250px; border-color: #74e083; background-color: #68f37b; margin: auto; margin-top: 50px; margin-bottom: 50px; font-family: sans-serif; font-size: 25px; font-weight: 400;">
+            Solicitar Turno
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="turnoModal" tabindex="-1" aria-labelledby="turnoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="turnoModalLabel">Solicitar Turno</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="turnoForm">
+                            <div class="mb-3">
+                                <label for="servicioSelect" class="form-label">Servicio</label>
+                                <select id="servicioSelect" class="form-select" required>
+                                    <option value="" disabled selected>Seleccione un servicio</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaInput" class="form-label">Fecha</label>
+                                <input type="date" id="fechaInput" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="horaInicioInput" class="form-label">Hora de Inicio</label>
+                                <input type="time" id="horaInicioInput" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="horaFinInput" class="form-label">Hora de Fin</label>
+                                <input type="time" id="horaFinInput" class="form-control" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="emailInput" class="form-label">Email</label>
+                                <input type="email" id="emailInput" class="form-control" placeholder="Ingrese su email" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" style="display: block; size: 80px; height: 50px; width: 250px; border-color: #74e083; background-color: #68f37b; margin: auto; margin-top: 50px; margin-bottom: 50px; font-family: sans-serif; font-size: 20px; font-weight: 400;"">Enviar Solicitud</button>
+                           
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const servicioSelect = document.getElementById('servicioSelect');
+                const horaInicioInput = document.getElementById('horaInicioInput');
+                const horaFinInput = document.getElementById('horaFinInput');
+
+                // Cargar servicios en el dropdown
+                fetch('/api/servicios')
+                    .then(res => res.json())
+                    .then(servicios => {
+                        servicios.forEach(servicio => {
+                            const option = document.createElement('option');
+                            option.value = servicio.id; // Asume que la columna 'id' es el identificador único del servicio
+                            option.textContent = servicio.nombre; // Asume que la columna 'nombre' contiene el nombre del servicio
+                            servicioSelect.appendChild(option);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Error cargando servicios:', err);
+                        alert('Ocurrió un error al cargar los servicios.');
+                    });
+
+                // Calcular automáticamente la hora de finalización
+                horaInicioInput.addEventListener('input', () => {
+                    const horaInicio = horaInicioInput.value;
+                    if (horaInicio) {
+                        const [hours, minutes] = horaInicio.split(':').map(Number);
+                        const horaFin = new Date();
+                        horaFin.setHours(hours + 1, minutes); // Sumar una hora
+                        const horaFinFormatted = horaFin.toTimeString().slice(0, 5); // Formatear a HH:mm
+                        horaFinInput.value = horaFinFormatted;
+                    }
+                });
+
+                const turnoForm = document.getElementById('turnoForm');
+
+                turnoForm.addEventListener('submit', async (event) => {
+                    event.preventDefault(); // Evitar el envío predeterminado del formulario
+
+                    // Obtener los valores ingresados en el formulario
+                    const servicioSelectValue = servicioSelect.value;
+                    const fechaInput = document.getElementById('fechaInput').value;
+                    const horaInicioValue = horaInicioInput.value;
+                    const horaFinValue = horaFinInput.value;
+                    const emailInput = document.getElementById('emailInput').value;
+
+                    // Validar que todos los campos estén completos
+                    if (!servicioSelectValue || !fechaInput || !horaInicioValue || !emailInput) {
+                        alert('Por favor, complete todos los campos obligatorios.');
+                        return;
+                    }
+
+                    // Crear el objeto con los datos del turno
+                    const turnoData = {
+                        servicio_id: servicioSelectValue,
+                        fecha_inicio: `${fechaInput}T${horaInicioValue}`,
+                        fecha_finalizacion: `${fechaInput}T${horaFinValue}`,
+                        email: emailInput,
+                        estado: 'pendiente' // Estado predeterminado
+                    };
+
+                    try {
+                        // Enviar los datos al servidor mediante una solicitud POST
+                        const response = await fetch('/api/turnos', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(turnoData)
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            alert('Turno solicitado exitosamente.');
+                            turnoForm.reset(); // Limpiar el formulario
+                        } else {
+                            const error = await response.json();
+                            alert(`Error al solicitar turno: ${error.error}`);
+                        }
+                    } catch (err) {
+                        console.error('Error al enviar la solicitud:', err);
+                        alert('Ocurrió un error al enviar la solicitud.');
+                    }
+                });
+            });
+        </script>
+
     <footer class="bg-light d-flex flex-column justify-content-center align-items-center footer">
         
         <div class="container">
