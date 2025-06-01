@@ -32,10 +32,14 @@
                         <a class="nav-link active" aria-current="page" href="#" style="font-weight: 100; font-size: 20px;">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" style="font-weight: 100; font-size: 20px;">Servicios</a>
+                        <a class="nav-link" href="" style="font-weight: 100; font-size: 20px;">Servicios</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" style="font-weight: 100; font-size: 20px;">Acerca De</a>
+                    </li>
+
+                    <li class="nav-item ms-auto">
+                        <a class="nav-link" href="/cuenta.html" style="font-weight: 100; font-size: 20px;">Cuenta de Usuario</a>
                     </li>
                 </ul>
             </div>
@@ -247,10 +251,21 @@
                     </div>
                     <div class="modal-body">
                         <form id="turnoForm">
+
+                            <div class="mb-3">
+                                <label for="emailInput" class="form-label">Email de cliente</label>
+                                <input type="email" id="emailInput" class="form-control" placeholder="Ingrese su email" required>
+                            </div>
                             <div class="mb-3">
                                 <label for="servicioSelect" class="form-label">Servicio</label>
                                 <select id="servicioSelect" class="form-select" required>
                                     <option value="" disabled selected>Seleccione un servicio</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="profesionalSelect" class="form-label">Profesional</label>
+                                <select id="profesionalSelect" class="form-select" required>
+                                    <option value="" disabled selected>Seleccione un profesional</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -265,11 +280,7 @@
                                 <label for="horaFinInput" class="form-label">Hora de Fin</label>
                                 <input type="time" id="horaFinInput" class="form-control" readonly>
                             </div>
-                            <div class="mb-3">
-                                <label for="emailInput" class="form-label">Email</label>
-                                <input type="email" id="emailInput" class="form-control" placeholder="Ingrese su email" required>
-                            </div>
-                            
+                        
                             <button type="submit" class="btn btn-primary" style="display: block; size: 80px; height: 50px; width: 250px; border-color: #74e083; background-color: #68f37b; margin: auto; margin-top: 50px; margin-bottom: 50px; font-family: sans-serif; font-size: 20px; font-weight: 400;"">Enviar Solicitud</button>
                            
                             
@@ -282,6 +293,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const servicioSelect = document.getElementById('servicioSelect');
+                const profesionalSelect = document.getElementById('profesionalSelect');
                 const horaInicioInput = document.getElementById('horaInicioInput');
                 const horaFinInput = document.getElementById('horaFinInput');
 
@@ -291,8 +303,8 @@
                     .then(servicios => {
                         servicios.forEach(servicio => {
                             const option = document.createElement('option');
-                            option.value = servicio.id; // Asume que la columna 'id' es el identificador único del servicio
-                            option.textContent = servicio.nombre; // Asume que la columna 'nombre' contiene el nombre del servicio
+                            option.value = servicio.id;
+                            option.textContent = servicio.nombre;
                             servicioSelect.appendChild(option);
                         });
                     })
@@ -301,14 +313,30 @@
                         alert('Ocurrió un error al cargar los servicios.');
                     });
 
+                // Cargar profesionales en el dropdown
+                fetch('/api/profesionales')
+                    .then(res => res.json())
+                    .then(profesionales => {
+                        profesionales.forEach(profesional => {
+                            const option = document.createElement('option');
+                            option.value = profesional.id;
+                            option.textContent = profesional.nombre;
+                            profesionalSelect.appendChild(option);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Error cargando profesionales:', err);
+                        alert('Ocurrió un error al cargar los profesionales.');
+                    });
+
                 // Calcular automáticamente la hora de finalización
                 horaInicioInput.addEventListener('input', () => {
                     const horaInicio = horaInicioInput.value;
                     if (horaInicio) {
                         const [hours, minutes] = horaInicio.split(':').map(Number);
                         const horaFin = new Date();
-                        horaFin.setHours(hours + 1, minutes); // Sumar una hora
-                        const horaFinFormatted = horaFin.toTimeString().slice(0, 5); // Formatear a HH:mm
+                        horaFin.setHours(hours + 1, minutes);
+                        const horaFinFormatted = horaFin.toTimeString().slice(0, 5);
                         horaFinInput.value = horaFinFormatted;
                     }
                 });
@@ -316,17 +344,18 @@
                 const turnoForm = document.getElementById('turnoForm');
 
                 turnoForm.addEventListener('submit', async (event) => {
-                    event.preventDefault(); // Evitar el envío predeterminado del formulario
+                    event.preventDefault();
 
                     // Obtener los valores ingresados en el formulario
                     const servicioSelectValue = servicioSelect.value;
+                    const profesionalSelectValue = profesionalSelect.value;
                     const fechaInput = document.getElementById('fechaInput').value;
                     const horaInicioValue = horaInicioInput.value;
                     const horaFinValue = horaFinInput.value;
                     const emailInput = document.getElementById('emailInput').value;
 
                     // Validar que todos los campos estén completos
-                    if (!servicioSelectValue || !fechaInput || !horaInicioValue || !emailInput) {
+                    if (!servicioSelectValue || !profesionalSelectValue || !fechaInput || !horaInicioValue || !emailInput) {
                         alert('Por favor, complete todos los campos obligatorios.');
                         return;
                     }
@@ -334,14 +363,14 @@
                     // Crear el objeto con los datos del turno
                     const turnoData = {
                         servicio_id: servicioSelectValue,
+                        profesional_id: profesionalSelectValue,
                         fecha_inicio: `${fechaInput}T${horaInicioValue}`,
                         fecha_finalizacion: `${fechaInput}T${horaFinValue}`,
                         email: emailInput,
-                        estado: 'pendiente' // Estado predeterminado
+                        estado: 'pendiente'
                     };
 
                     try {
-                        // Enviar los datos al servidor mediante una solicitud POST
                         const response = await fetch('/api/turnos', {
                             method: 'POST',
                             headers: {
@@ -353,7 +382,7 @@
                         if (response.ok) {
                             const result = await response.json();
                             alert('Turno solicitado exitosamente.');
-                            turnoForm.reset(); // Limpiar el formulario
+                            turnoForm.reset();
                         } else {
                             const error = await response.json();
                             alert(`Error al solicitar turno: ${error.error}`);
