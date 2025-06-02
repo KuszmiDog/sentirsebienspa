@@ -116,3 +116,45 @@ app.post('/api/crear-cuenta', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error en la base de datos.' });
   }
 });
+
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validar que el email y la contraseña estén presentes
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email y contraseña son obligatorios.' });
+    }
+
+    // Verificar si el profesional existe
+    const [profesional] = await pool.query('SELECT * FROM Profesional WHERE email = ?', [email]);
+    if (profesional.length === 0) {
+      return res.status(404).json({ success: false, message: 'Profesional no encontrado.' });
+    }
+
+    // Verificar la contraseña (esto es solo un ejemplo, no usar contraseñas en texto plano en producción)
+    if (profesional[0].password !== password) {
+      return res.status(401).json({ success: false, message: 'Contraseña incorrecta.' });
+    }
+
+    // Obtener los turnos asociados al profesional, incluyendo servicio y cliente
+    const [turnos] = await pool.query(
+      `SELECT 
+          t.id,
+          t.fecha_inicio AS fecha,
+          DATE_FORMAT(t.fecha_inicio, "%H:%i") AS hora,
+          s.nombre AS servicio,
+          c.nombre AS cliente
+        FROM turno t
+        JOIN servicios s ON t.servicio_id = s.id
+        JOIN clientes c ON t.cliente_id = c.id
+        WHERE t.profesional_id = ?`,
+      [profesional[0].id]
+    );
+
+    res.json({ success: true, turnos });
+  } catch (err) {
+    console.error('Error al iniciar sesión:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});

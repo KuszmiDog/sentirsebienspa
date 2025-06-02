@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Cuenta de Cliente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 60px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .form-title {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+        <nav class="navbar navbar-expand-lg navbar-transparent"
+            style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1030; backdrop-filter: blur(6px);"
+            data-aos="fade-down" data-aos-duration="450">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/index.html" style="font-weight: 200; font-size: 30px;">Sentirse Bien</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                    aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="line-gap-override: 100;">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#" style="font-weight: 100; font-size: 20px;">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/index.html#contenedor-servicios" style="font-weight: 100; font-size: 20px;">Servicios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" style="font-weight: 100; font-size: 20px;">Acerca De</a>
+                        </li>
+                        <li class="nav-item ms-auto">
+                            <a class="nav-link" href="/cuenta.html" style="font-weight: 100; font-size: 20px;">Cuenta de Usuario</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav> <!-- Fin del Navbar -->
+
+
+    <div class="form-container" style="margin-top: 150px;"> <!-- Contenedor del formulario -->
+        <h2 class="form-title" style="font-weight: 400">Ingreso de Profesional</h2>
+        <form>
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </div>
+
+    <div style="display: flex; justify-content: center; margin-top: 20px; margin-bottom: 20px;">
+        <div>
+            <a href="/cuenta.html" class="btn btn-primary w-100" style="display: block; height: 50px; width: 100%; border-color: #747be0; 
+            background-color: #747be0; margin-bottom: 20px; font-family: sans-serif; font-size: 20px; font-weight: 400; text-align: center; 
+            line-height: 35px;">Ingreso de Cliente</a>
+        </div>
+    </div>
+    <!-- Bootstrap JS CDN (opcional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script para AOS (Animate On Scroll) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800, // Duración de la animación
+            once: true // Solo animar una vez
+        });
+    </script>
+</body>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita el envío del formulario por defecto
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Aquí deberías enviar los datos al servidor
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mostrar los turnos en una ventana emergente
+                let turnosHtml = '<h3>Turnos Asociados</h3><table class="table"><thead><tr><th>Fecha</th><th>Hora</th><th>Servicio</th><th>Cliente</th><th>Acción</th></tr></thead><tbody>';
+                data.turnos.forEach(turno => {
+                    turnosHtml += `<tr>
+                        <td>${turno.fecha}</td>
+                        <td>${turno.hora}</td>
+                        <td>${turno.servicio}</td>
+                        <td>${turno.cliente}</td>
+                        <td>
+                            <button class="btn btn-success btn-confirmar" data-id="${turno.id}">Confirmar</button>
+                        </td>
+                    </tr>`;
+                });
+                turnosHtml += '</tbody></table>';
+                
+                // Crear y mostrar la ventana emergente
+                const modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Turnos Asociados</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                ${turnosHtml}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show();
+
+                // Manejar el click en los botones "Confirmar"
+                modal.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('btn-confirmar')) {
+                        const turnoId = e.target.getAttribute('data-id');
+                        fetch('/api/confirmar-turno', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ id: turnoId })
+                        })
+                        .then(res => res.json())
+                        .then(resData => {
+                            if (resData.success) {
+                                e.target.textContent = 'Confirmado';
+                                e.target.classList.remove('btn-success');
+                                e.target.classList.add('btn-secondary');
+                                e.target.disabled = true;
+                            } else {
+                                alert('No se pudo confirmar el turno.');
+                            }
+                        })
+                        .catch(() => {
+                            alert('Error al confirmar el turno.');
+                        });
+                    }
+                });
+            } else {
+                alert('Error al iniciar sesión: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrió un error al iniciar sesión. Por favor, inténtelo de nuevo.');
+        });
+    });
+</script>
+
+ 
+
+</html>
