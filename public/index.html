@@ -342,55 +342,33 @@
                 });
 
                 const turnoForm = document.getElementById('turnoForm');
-
-                turnoForm.addEventListener('submit', async (event) => {
+                turnoForm.addEventListener('submit', (event) => {
                     event.preventDefault();
 
                     // Obtener los valores ingresados en el formulario
-                    const servicioSelectValue = servicioSelect.value;
-                    const profesionalSelectValue = profesionalSelect.value;
+                    const servicioSelectValue = document.getElementById('servicioSelect').value;
+                    const profesionalSelectValue = document.getElementById('profesionalSelect').value;
                     const fechaInput = document.getElementById('fechaInput').value;
-                    const horaInicioValue = horaInicioInput.value;
-                    const horaFinValue = horaFinInput.value;
+                    const horaInicioValue = document.getElementById('horaInicioInput').value;
+                    const horaFinValue = document.getElementById('horaFinInput').value;
                     const emailInput = document.getElementById('emailInput').value;
 
-                    // Validar que todos los campos estén completos
                     if (!servicioSelectValue || !profesionalSelectValue || !fechaInput || !horaInicioValue || !emailInput) {
                         alert('Por favor, complete todos los campos obligatorios.');
                         return;
                     }
 
-                    // Crear el objeto con los datos del turno
+                    // Guardar datos en localStorage
                     const turnoData = {
                         servicio_id: servicioSelectValue,
                         profesional_id: profesionalSelectValue,
-                        fecha_inicio: `${fechaInput}T${horaInicioValue}`,
-                        fecha_finalizacion: `${fechaInput}T${horaFinValue}`,
-                        email: emailInput,
-                        estado: 'pendiente'
+                        fecha: fechaInput,
+                        hora_inicio: horaInicioValue,
+                        hora_fin: horaFinValue,
+                        email: emailInput
                     };
-
-                    try {
-                        const response = await fetch('/api/turnos', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(turnoData)
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            alert('Turno solicitado exitosamente.');
-                            turnoForm.reset();
-                        } else {
-                            const error = await response.json();
-                            alert(`Error al solicitar turno: ${error.error}`);
-                        }
-                    } catch (err) {
-                        console.error('Error al enviar la solicitud:', err);
-                        alert('Ocurrió un error al enviar la solicitud.');
-                    }
+                    localStorage.setItem('turnoData', JSON.stringify(turnoData));
+                    window.location.href = 'confirmar-turno.html';
                 });
             });
         </script>

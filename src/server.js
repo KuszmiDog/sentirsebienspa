@@ -59,6 +59,18 @@ app.post('/api/turnos', async (req, res) => {
   }
 });
 
+//obtener los profesionales
+app.get('/api/adminpanelinfo', async (req, res) => {
+  try {
+      const [rows] = await pool.query('SELECT t.id as ID_TURNO, c.nombre as CLIENTE,s.nombre as SERVICIO, p.nombre as PROFESIONAL_A_CARGO,t.fecha_inicio as HORARIO_INICIO, t.fecha_finalizacion as HORARIO_FINALIZACION  FROM turno t INNER JOIN clientes c ON t.cliente_id = c.id INNER JOIN Profesional p ON t.profesional_id = p.id INNER JOIN servicios s ON t.servicio_id = s.id');
+      res.json(rows);
+  } catch (err) {
+      console.error('ERROR AL CARGAR LOS DATOS DEL PANEL DE ADMINISTRADOR:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+
+//obtener los profesionales
 app.get('/api/profesionales', async (req, res) => {
   try {
       const [rows] = await pool.query('SELECT id, nombre FROM Profesional');

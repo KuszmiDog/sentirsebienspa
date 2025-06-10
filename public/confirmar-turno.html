@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar Turno</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Confirmar Solicitud de Turno</h2>
+        <div id="datos-turno" class="mb-4"></div>
+        <button id="confirmarBtn" class="btn btn-success mb-2">Confirmar y Solicitar Turno</button>
+        <button id="descargarBtn" class="btn btn-primary" style="display:none;">Descargar PDF</button>
+    </div>
+    <script>
+        // Cargar datos del turno
+        const datos = JSON.parse(localStorage.getItem('turnoData'));
+        const datosDiv = document.getElementById('datos-turno');
+        if (!datos) {
+            datosDiv.innerHTML = '<div class="alert alert-danger">No hay datos de turno para confirmar.</div>';
+            document.getElementById('confirmarBtn').style.display = 'none';
+        } else {
+            datosDiv.innerHTML = `
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Email:</strong> ${datos.email}</li>
+                    <li class="list-group-item"><strong>Servicio:</strong> ${datos.servicio_id}</li>
+                    <li class="list-group-item"><strong>Profesional:</strong> ${datos.profesional_id}</li>
+                    <li class="list-group-item"><strong>Fecha:</strong> ${datos.fecha}</li>
+                    <li class="list-group-item"><strong>Hora de Inicio:</strong> ${datos.hora_inicio}</li>
+                    <li class="list-group-item"><strong>Hora de Fin:</strong> ${datos.hora_fin}</li>
+                </ul>
+            `;
+        }
+
+        // Confirmar y enviar al backend
+        document.getElementById('confirmarBtn').onclick = async function() {
+            if (!datos) return;
+            const turnoData = {
+                servicio_id: datos.servicio_id,
+                profesional_id: datos.profesional_id,
+                fecha_inicio: `${datos.fecha}T${datos.hora_inicio}`,
+                fecha_finalizacion: `${datos.fecha}T${datos.hora_fin}`,
+                email: datos.email,
+                estado: 'pendiente'
+            };
+            const response = await fetch('/api/turnos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(turnoData)
+            });
+            if (response.ok) {
+                alert('Turno solicitado exitosamente.');
+                document.getElementById('descargarBtn').style.display = 'inline-block';
+                this.style.display = 'none';
+            } else {
+                const error = await response.json();
+                alert('Error al solicitar turno: ' + error.error);
+            }
+        };
+
+        // Descargar PDF
+        document.getElementById('descargarBtn').onclick = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('Comprobante de Solicitud de Turno', 10, 10);
+            doc.text(`Email: ${datos.email}`, 10, 20);
+            doc.text(`Servicio: ${datos.servicio_id}`, 10, 30);
+            doc.text(`Profesional: ${datos.profesional_id}`, 10, 40);
+            doc.text(`Fecha: ${datos.fecha}`, 10, 50);
+            doc.text(`Hora de Inicio: ${datos.hora_inicio}`, 10, 60);
+            doc.text(`Hora de Fin: ${datos.hora_fin}`, 10, 70);
+            doc.save('comprobante-turno.pdf');
+        };
+    </script>
+</body>
+</html>
