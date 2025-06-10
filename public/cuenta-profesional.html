@@ -131,6 +131,14 @@
                             </div>
                             <div class="modal-body">
                                 ${turnosHtml}
+                                <ul class="list-group">
+                                    <li class="list-group-item"><strong>Email:</strong> ${datos.email}</li>
+                                    <li class="list-group-item"><strong>Servicio:</strong> <span id="servicioNombre"></span></li>
+                                    <li class="list-group-item"><strong>Profesional:</strong> ${datos.profesional_id}</li>
+                                    <li class="list-group-item"><strong>Fecha:</strong> ${datos.fecha}</li>
+                                    <li class="list-group-item"><strong>Hora de Inicio:</strong> ${datos.hora_inicio}</li>
+                                    <li class="list-group-item"><strong>Hora de Fin:</strong> ${datos.hora_fin}</li>
+                                </ul>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -171,6 +179,18 @@
                 });
             } else {
                 alert('Error al iniciar sesión: ' + data.message);
+
+                // Obtener el precio del servicio
+                fetch(`/api/servicios/${datos.servicio_id}`)
+                    .then(res => res.json())
+                    .then(servicio => {
+                        document.getElementById('precioServicio').value = servicio.precio + ' ARS';
+                        document.getElementById('servicioNombre').textContent = servicio.nombre;
+                        document.getElementById('pago-section').style.display = 'block';
+                    })
+                    .catch(() => {
+                        datosDiv.innerHTML += '<div class="alert alert-danger mt-2">No se pudo obtener el precio del servicio.</div>';
+                    });
             }
         })
         .catch(error => {

@@ -10,7 +10,29 @@
     <div class="container mt-5">
         <h2>Confirmar Solicitud de Turno</h2>
         <div id="datos-turno" class="mb-4"></div>
-        <button id="confirmarBtn" class="btn btn-success mb-2">Confirmar y Solicitar Turno</button>
+        <div id="pago-section" style="display:none;">
+            <h4>Simular Pago</h4>
+            <form id="pagoForm" class="mb-3">
+                <div class="mb-2">
+                    <label class="form-label">Precio del Servicio:</label>
+                    <input type="text" id="precioServicio" class="form-control" readonly>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Número de Tarjeta</label>
+                    <input type="text" id="tarjeta" class="form-control" maxlength="16" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Código de Seguridad</label>
+                    <input type="text" id="codigo" class="form-control" maxlength="3" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Fecha de Caducidad (MM/AA)</label>
+                    <input type="text" id="caducidad" class="form-control" maxlength="5" placeholder="MM/AA" required>
+                </div>
+                <button type="submit" id="pagarBtn" class="btn btn-warning">Confirmar Pago de Turno</button>
+            </form>
+        </div>
+        <button id="confirmarBtn" class="btn btn-success mb-2" style="display:none;">Confirmar y Solicitar Turno</button>
         <button id="descargarBtn" class="btn btn-primary" style="display:none;">Descargar PDF</button>
     </div>
     <script>
@@ -19,7 +41,6 @@
         const datosDiv = document.getElementById('datos-turno');
         if (!datos) {
             datosDiv.innerHTML = '<div class="alert alert-danger">No hay datos de turno para confirmar.</div>';
-            document.getElementById('confirmarBtn').style.display = 'none';
         } else {
             datosDiv.innerHTML = `
                 <ul class="list-group">
@@ -31,7 +52,48 @@
                     <li class="list-group-item"><strong>Hora de Fin:</strong> ${datos.hora_fin}</li>
                 </ul>
             `;
+            // Consultar precio del servicio
+            fetch(`/api/servicios/${datos.servicio_id}`)
+                .then(res => res.json())
+                .then(servicio => {
+                    document.getElementById('precioServicio').value = servicio.precio + ' ARS';
+                    document.getElementById('pago-section').style.display = 'block';
+                })
+                .catch(() => {
+                    datosDiv.innerHTML += '<div class="alert alert-danger mt-2">No se pudo obtener el precio del servicio.</div>';
+                });
         }
+
+        // Validar y simular pago
+        document.getElementById('pagoForm').onsubmit = function(e) {
+            e.preventDefault();
+            const tarjeta = document.getElementById('tarjeta').value.trim();
+            const codigo = document.getElementById('codigo').value.trim();
+            const caducidad = document.getElementById('caducidad').value.trim();
+
+            // Validaciones simples
+            const tarjetaValida = /^\d{16}$/.test(tarjeta); //numero valido de tarjeta de 16 dígitos por ejemplo: // 1234567812345678
+            const codigoValido = /^\d{3}$/.test(codigo);
+            const caducidadValida = /^(0[1-9]|1[0-2])\/\d{2}$/.test(caducidad); // fecha de caducidad en formato MM/AA valida de ejemplo: 12/25
+
+            if (!tarjetaValida) {
+                alert('Número de tarjeta inválido');
+                return;
+            }
+            if (!codigoValido) {
+                alert('Código de seguridad inválido');
+                return;
+            }
+            if (!caducidadValida) {
+                alert('Fecha de caducidad inválida');
+                return;
+            }
+
+            // Simular pago exitoso
+            alert('Pago realizado con éxito.');
+            document.getElementById('confirmarBtn').style.display = 'inline-block';
+            document.getElementById('pago-section').style.display = 'none';
+        };
 
         // Confirmar y enviar al backend
         document.getElementById('confirmarBtn').onclick = async function() {
@@ -63,7 +125,13 @@
         document.getElementById('descargarBtn').onclick = function() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text('Comprobante de Solicitud de Turno', 10, 10);
+            //nombre del spa
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(40);
+            // Título del PDF
+
+            doc.text('- Comprobante de Solicitud de Turno - SPA Sentirse Bien -', 10, 10);
             doc.text(`Email: ${datos.email}`, 10, 20);
             doc.text(`Servicio: ${datos.servicio_id}`, 10, 30);
             doc.text(`Profesional: ${datos.profesional_id}`, 10, 40);
@@ -71,6 +139,7 @@
             doc.text(`Hora de Inicio: ${datos.hora_inicio}`, 10, 60);
             doc.text(`Hora de Fin: ${datos.hora_fin}`, 10, 70);
             doc.save('comprobante-turno.pdf');
+            doc.save('Precio del Servicio: ' + document.getElementById('precioServicio').value);
         };
     </script>
 </body>

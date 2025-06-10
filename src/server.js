@@ -24,6 +24,20 @@ app.get('/api/servicios', async (req, res) => {
   }
 });
 
+app.get('/api/servicios/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query('SELECT id, nombre, precio FROM servicios WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Servicio no encontrado' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error al consultar servicio:', err);
+    res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+
 // Ruta para insertar un turno en la base de datos
 app.post('/api/turnos', async (req, res) => {
   try {
@@ -63,6 +77,17 @@ app.post('/api/turnos', async (req, res) => {
 app.get('/api/adminpanelinfo', async (req, res) => {
   try {
       const [rows] = await pool.query('SELECT t.id as ID_TURNO, c.nombre as CLIENTE,s.nombre as SERVICIO, p.nombre as PROFESIONAL_A_CARGO,t.fecha_inicio as HORARIO_INICIO, t.fecha_finalizacion as HORARIO_FINALIZACION  FROM turno t INNER JOIN clientes c ON t.cliente_id = c.id INNER JOIN Profesional p ON t.profesional_id = p.id INNER JOIN servicios s ON t.servicio_id = s.id');
+      res.json(rows);
+  } catch (err) {
+      console.error('ERROR AL CARGAR LOS DATOS DEL PANEL DE ADMINISTRADOR:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+
+//obtener los profesionales
+app.get('/api/ConfirmarTurno', async (req, res) => {
+  try {
+      const [rows] = await pool.query('');
       res.json(rows);
   } catch (err) {
       console.error('ERROR AL CARGAR LOS DATOS DEL PANEL DE ADMINISTRADOR:', err);
