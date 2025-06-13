@@ -138,8 +138,8 @@
             doc.text(`Fecha: ${datos.fecha}`, 10, 50);
             doc.text(`Hora de Inicio: ${datos.hora_inicio}`, 10, 60);
             doc.text(`Hora de Fin: ${datos.hora_fin}`, 10, 70);
+            doc.text(`Precio del Servicio: ${document.getElementById('precioServicio').value}`, 10, 80);
             doc.save('comprobante-turno.pdf');
-            doc.save('Precio del Servicio: ' + document.getElementById('precioServicio').value);
         };
     </script>
 </body>
