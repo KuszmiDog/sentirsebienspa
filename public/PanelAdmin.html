@@ -62,6 +62,8 @@
                 try {
                     const response = await fetch('/api/adminpanelinfo');
                     const data = await response.json();
+                    console.log(data);
+                    console.log(data[0]);
 
                     // Crear tabla
                     const table = document.createElement('table');
@@ -83,6 +85,7 @@
                     `;
                     table.appendChild(thead);
 
+
                     // Cuerpo de la tabla
                     const tbody = document.createElement('tbody');
                     data.forEach(row => {
@@ -94,7 +97,7 @@
                             <td>${row.PROFESIONAL_A_CARGO}</td>
                             <td>${row.HORARIO_INICIO}</td>
                             <td>${row.HORARIO_FINALIZACION}</td>
-                            <td class="estado">${row.ESTADO || 'Pendiente'}</td>
+                            <td class="estado">${row.ESTADO}</td>
                             <td>
                                 <button class="btn btn-success btn-sm confirmar-btn" ${row.ESTADO === 'Confirmado' ? 'disabled' : ''}>Confirmar</button>
                                 <button class="btn btn-danger btn-sm eliminar-btn">Eliminar</button>

@@ -86,6 +86,8 @@
     </script>
 </body>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script>
     document.querySelector('form').addEventListener('submit', function(event) {
         event.preventDefault(); // Evita el envío del formulario por defecto
@@ -105,7 +107,7 @@
         .then(data => {
             if (data.success) {
                 // Mostrar los turnos en una ventana emergente
-                let turnosHtml = '<h3>Turnos Asociados</h3><table class="table"><thead><tr><th>Fecha</th><th>Hora</th><th>Servicio</th><th>Cliente</th><th>Acción</th></tr></thead><tbody>';
+                let turnosHtml = '<h3>Turnos Asociados</h3><table class="table" id="tabla-turnos-profesional"><thead><tr><th>Fecha</th><th>Hora</th><th>Servicio</th><th>Cliente</th><th>Acción</th></tr></thead><tbody>';
                 data.turnos.forEach(turno => {
                     turnosHtml += `<tr>
                         <td>${turno.fecha}</td>
@@ -119,7 +121,7 @@
                 });
                 turnosHtml += '</tbody></table>';
                 
-                // Crear y mostrar la ventana emergente
+                // ventana emergente
                 const modal = document.createElement('div');
                 modal.className = 'modal fade';
                 modal.innerHTML = `
@@ -131,17 +133,10 @@
                             </div>
                             <div class="modal-body">
                                 ${turnosHtml}
-                                <ul class="list-group">
-                                    <li class="list-group-item"><strong>Email:</strong> ${data.email}</li>
-                                    <li class="list-group-item"><strong>Servicio:</strong> <span id="servicioNombre"></span></li>
-                                    <li class="list-group-item"><strong>Profesional:</strong> ${data.profesional_id}</li>
-                                    <li class="list-group-item"><strong>Fecha:</strong> ${data.fecha}</li>
-                                    <li class="list-group-item"><strong>Hora de Inicio:</strong> ${data.hora_inicio}</li>
-                                    <li class="list-group-item"><strong>Hora de Fin:</strong> ${data.hora_fin}</li>
-                                </ul>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button id="btn-imprimir-turnos" class="btn btn-primary">Imprimir PDF</button>
                             </div>
                         </div>
                     </div>
@@ -149,21 +144,21 @@
                 document.body.appendChild(modal);
                 const bsModal = new bootstrap.Modal(modal);
                 bsModal.show();
+                
 
                 // Manejar el click en los botones "Confirmar"
                 modal.addEventListener('click', function(e) {
                     if (e.target.classList.contains('btn-confirmar')) {
                         const turnoId = e.target.getAttribute('data-id');
-                        fetch('/api/confirmar-turno', {
-                            method: 'POST',
+                        fetch(`/api/turnos/${turnoId}/confirmar`, {
+                            method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ id: turnoId })
+                            }
                         })
                         .then(res => res.json())
                         .then(resData => {
-                            if (resData.success) {
+                            if (resData.message) {
                                 e.target.textContent = 'Confirmado';
                                 e.target.classList.remove('btn-success');
                                 e.target.classList.add('btn-secondary');
@@ -176,6 +171,47 @@
                             alert('Error al confirmar el turno.');
                         });
                     }
+                });
+
+                // Manejar el click en el botón "Imprimir PDF"
+                document.getElementById('btn-imprimir-turnos').addEventListener('click', function() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    // Obtén los encabezados y filas de la tabla
+                    const tabla = document.getElementById('tabla-turnos-profesional');
+                    const headers = [];
+                    tabla.querySelectorAll('thead th').forEach(th => headers.push(th.innerText));
+                    const rows = [];
+                    tabla.querySelectorAll('tbody tr').forEach(tr => {
+                        const row = [];
+                        tr.querySelectorAll('td').forEach(td => row.push(td.innerText));
+                        rows.push(row);
+                    });
+
+                    // Usa autoTable con estilos personalizados
+                    doc.autoTable({
+                        head: [headers],
+                        body: rows,
+                        styles: {
+                            font: 'helvetica',
+                            fontSize: 10,
+                            cellPadding: 4,
+                            textColor: [40, 40, 40],
+                            fillColor: [245, 245, 245],
+                        },
+                        headStyles: {
+                            fillColor: [41, 128, 185],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold'
+                        },
+                        alternateRowStyles: {
+                            fillColor: [220, 230, 241]
+                        },
+                        margin: { top: 20 }
+                    });
+
+                    doc.save('turnos-profesional.pdf');
                 });
             } else {
                 alert('Error al iniciar sesión: ' + data.message);
