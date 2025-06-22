@@ -114,12 +114,26 @@
                         const tr = e.target.closest('tr');
                         const idTurno = tr.children[0].textContent;
                         if (e.target.classList.contains('confirmar-btn')) {
-                            // Confirmar turno
+                            // Confirmar turno solo si NO está ya confirmado
+                            const estado = tr.querySelector('.estado').textContent.trim();
+                            if (estado === 'Confirmado') {
+                                alert('Este turno ya está confirmado.');
+                                return;
+                            }
                             try {
-                                const res = await fetch(`/api/confirmar-turno/${idTurno}`, { method: 'PUT' });
-                                if (res.ok) {
+                                const res = await fetch(`/api/confirmar-turno/${idTurno}`, { 
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' }
+                                });
+                                const result = await res.json();
+                                if (res.ok && result.success) {
                                     tr.querySelector('.estado').textContent = 'Confirmado';
-                                    e.target.disabled = true;
+                                    // Reemplazar el botón por "turno confirmado"
+                                    const accionesTd = e.target.parentElement;
+                                    accionesTd.innerHTML = `<button class="btn btn-secondary btn-sm" disabled>Turno confirmado</button>
+                                        <button class="btn btn-danger btn-sm eliminar-btn">Eliminar</button>`;
+                                } else {
+                                    alert(result.message || 'Error al confirmar el turno');
                                 }
                             } catch (err) {
                                 alert('Error al confirmar el turno');

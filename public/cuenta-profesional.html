@@ -105,13 +105,14 @@
         .then(data => {
             if (data.success) {
                 // Mostrar los turnos en una ventana emergente
-                let turnosHtml = '<h3>Turnos Asociados</h3><table class="table"><thead><tr><th>Fecha</th><th>Hora</th><th>Servicio</th><th>Cliente</th><th>Acción</th></tr></thead><tbody>';
+                let turnosHtml = '<h3>Turnos Asociados</h3><table class="table"><thead><tr><th>Fecha</th><th>Hora</th><th>Servicio</th><th>Cliente</th><th>Estado</th><th>Acción</th></tr></thead><tbody>';
                 data.turnos.forEach(turno => {
                     turnosHtml += `<tr>
                         <td>${turno.fecha}</td>
                         <td>${turno.hora}</td>
                         <td>${turno.servicio}</td>
                         <td>${turno.cliente}</td>
+                        <td class="estado">${turno.ESTADO || 'Pendiente'}</td>
                         <td>
                             <button class="btn btn-success btn-confirmar" data-id="${turno.id}">Confirmar</button>
                         </td>

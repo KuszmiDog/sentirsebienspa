@@ -76,7 +76,20 @@ app.post('/api/turnos', async (req, res) => {
 //obtener los profesionales
 app.get('/api/adminpanelinfo', async (req, res) => {
   try {
-      const [rows] = await pool.query('SELECT t.id as ID_TURNO, c.nombre as CLIENTE,s.nombre as SERVICIO, p.nombre as PROFESIONAL_A_CARGO,t.fecha_inicio as HORARIO_INICIO, t.fecha_finalizacion as HORARIO_FINALIZACION  FROM turno t INNER JOIN clientes c ON t.cliente_id = c.id INNER JOIN Profesional p ON t.profesional_id = p.id INNER JOIN servicios s ON t.servicio_id = s.id');
+      const [rows] = await pool.query(`
+        SELECT 
+          t.id as ID_TURNO, 
+          c.nombre as CLIENTE,
+          s.nombre as SERVICIO, 
+          p.nombre as PROFESIONAL_A_CARGO,
+          t.fecha_inicio as HORARIO_INICIO, 
+          t.fecha_finalizacion as HORARIO_FINALIZACION,
+          t.estado as ESTADO
+        FROM turno t 
+        INNER JOIN clientes c ON t.cliente_id = c.id 
+        INNER JOIN Profesional p ON t.profesional_id = p.id 
+        INNER JOIN servicios s ON t.servicio_id = s.id
+      `);
       res.json(rows);
   } catch (err) {
       console.error('ERROR AL CARGAR LOS DATOS DEL PANEL DE ADMINISTRADOR:', err);
@@ -85,15 +98,7 @@ app.get('/api/adminpanelinfo', async (req, res) => {
 });
 
 //obtener los profesionales
-app.get('/api/ConfirmarTurno', async (req, res) => {
-  try {
-      const [rows] = await pool.query('');
-      res.json(rows);
-  } catch (err) {
-      console.error('ERROR AL CARGAR LOS DATOS DEL PANEL DE ADMINISTRADOR:', err);
-      res.status(500).json({ error: 'Error en la base de datos' });
-  }
-});
+
 
 //obtener los profesionales
 app.get('/api/profesionales', async (req, res) => {
@@ -103,6 +108,44 @@ app.get('/api/profesionales', async (req, res) => {
   } catch (err) {
       console.error('Error al consultar profesionales:', err);
       res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+
+app.delete('/api/eliminar-turno/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query('DELETE FROM turno WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
+    }
+    res.json({ success: true, message: 'Turno eliminado correctamente.' });
+  } catch (err) {
+    console.error('Error al eliminar turno:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});
+
+// Confirmar turno
+app.post('/api/confirmar-turno/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'ID de turno requerido.' });
+    }
+
+    const [result] = await pool.query(
+      'UPDATE turno SET estado = "Confirmado" WHERE id = ?',
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
+    }
+
+    res.json({ success: true, message: 'Turno confirmado correctamente.' });
+  } catch (err) {
+    console.error('Error al confirmar turno:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
   }
 });
 
@@ -195,3 +238,5 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error en la base de datos.' });
   }
 });
+
+
