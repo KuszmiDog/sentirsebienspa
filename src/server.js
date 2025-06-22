@@ -13,6 +13,24 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
+
+// Verificación de conexión (opcional)
+(async () => {
+  try {
+    const connection = await pool.getConnection();
+    console.log('✅ Conexión exitosa a la base de datos.');
+    connection.release();
+  } catch (err) {
+    console.error('❌ Error al conectar a la base de datos:', err);
+  }
+})();
+
+// Iniciar el servidor
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+});
+
+
 //API para ver los servicios
 app.get('/api/servicios', async (req, res) => {
   try {
@@ -97,7 +115,45 @@ app.get('/api/adminpanelinfo', async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 //obtener los profesionales
+
+=======
+app.delete('/api/eliminar-turno/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [result] = await pool.query('DELETE FROM turno WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Turno no encontrado' });
+    }
+    res.json({ message: 'Turno eliminado exitosamente' });
+  } catch (err) {
+    console.error('Error al eliminar el turno:', err);
+    res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+>>>>>>> e19caa78a65135a35d65a1d4fe27f6234b4b28cc
+
+//cambiar el estado de un turno especifico de "Pendiente" a "Confirmado"
+app.put('/api/turnos/:id/confirmar', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Verificar si el turno existe
+    const [turno] = await pool.query('SELECT * FROM turno WHERE id = ?', [id]);
+    if (turno.length === 0) {
+      return res.status(404).json({ error: 'Turno no encontrado' });
+    }
+
+    // Actualizar el estado del turno a "Confirmado"
+    await pool.query('UPDATE turno SET estado = "Confirmado" WHERE id = ?', [id]);
+
+    res.json({ message: 'Turno confirmado exitosamente' });
+  } catch (err) {
+    console.error('Error al confirmar el turno:', err);
+    res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
 
 
 //obtener los profesionales
@@ -111,6 +167,7 @@ app.get('/api/profesionales', async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 app.delete('/api/eliminar-turno/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -166,6 +223,8 @@ app.listen(PORT, () => {
 });
 
 
+=======
+>>>>>>> e19caa78a65135a35d65a1d4fe27f6234b4b28cc
 
 
 //creacion de cuenta de usuario (usando solo nombre, email y telefono)
