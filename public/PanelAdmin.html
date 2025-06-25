@@ -22,6 +22,44 @@
             margin-bottom: 25px;
             text-align: center;
         }
+        .contenedor-servicios {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin: 40px 0;
+        }
+        .etiqueta-servicio {
+            background: #e6f9ed;
+            border: 1px solid #74e083;
+            border-radius: 20px;
+            padding: 18px 28px;
+            min-width: 220px;
+            max-width: 320px;
+            box-shadow: 0 2px 8px rgba(116,224,131,0.08);
+            margin-bottom: 10px;
+            font-family: sans-serif;
+            transition: box-shadow 0.2s;
+        }
+        .etiqueta-servicio:hover {
+            box-shadow: 0 4px 16px rgba(116,224,131,0.18);
+            background: #d2f5e0;
+        }
+        .etiqueta-servicio h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #2b7a4b;
+            font-weight: 600;
+        }
+        .etiqueta-servicio p {
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        .etiqueta-servicio small {
+            color: #4e8c5b;
+            font-size: 0.95em;
+        }
     </style>
 </head>
 <body>
@@ -57,6 +95,8 @@
     <div class="form-container" style="margin-top: 100px; min-width: 1200px;"> <!-- Contenedor del formulario -->
         <h2 class="form-title" style="position: relative; font-weight: 300; margin-top: 20px;">Panel de Administrador: Dr. Felicidad</h2>
         <div id="admin-table-container"></div>
+        
+
         <script>
             document.addEventListener('DOMContentLoaded', async () => {
                 try {
@@ -106,6 +146,8 @@
                         tbody.appendChild(tr);
                     });
                     table.appendChild(tbody);
+
+                    
 
                     // Insertar tabla en el DOM
                     const container = document.getElementById('admin-table-container');
@@ -160,18 +202,100 @@
                     console.error('Error al cargar los datos del panel:', err);
                 }
             });
+    </script>
+
+    <!-- Formulario para agregar un nuevo servicio -->
+    <div id="form-agregar-servicio" style="display: flex; gap: 10px; justify-content: center; align-items: center; margin: 40px 0 20px 0;">
+        <input type="text" id="nuevo-nombre" class="form-control" placeholder="Nombre del servicio" style="max-width: 180px;">
+        <input type="text" id="nuevo-descripcion" class="form-control" placeholder="Descripción" style="max-width: 260px;">
+        <input type="text" id="nuevo-tipo" class="form-control" placeholder="Tipo (Individual/Grupal)" style="max-width: 140px;">
+        <input type="number" id="nuevo-precio" class="form-control" placeholder="Precio" style="max-width: 100px;">
+        <button id="btn-agregar-servicio" class="btn btn-success">Agregar Servicio</button>
+    </div>
+
+    <script>
+    document.getElementById('btn-agregar-servicio').onclick = async function() {
+        const nombre = document.getElementById('nuevo-nombre').value.trim();
+        const descripcion = document.getElementById('nuevo-descripcion').value.trim();
+        const tipo = document.getElementById('nuevo-tipo').value.trim();
+        const precio = document.getElementById('nuevo-precio').value.trim();
+
+        if (!nombre || !descripcion || !tipo || !precio) {
+            alert('Todos los campos son obligatorios.');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/agregar-servicio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, descripcion, tipo, precio })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Servicio agregado correctamente.');
+                // Limpiar campos
+                document.getElementById('nuevo-nombre').value = '';
+                document.getElementById('nuevo-descripcion').value = '';
+                document.getElementById('nuevo-tipo').value = '';
+                document.getElementById('nuevo-precio').value = '';
+                // Recargar servicios
+                cargarServicios();
+            } else {
+                alert(data.message || 'Error al agregar el servicio.');
+            }
+        } catch (err) {
+            alert('Error al agregar el servicio.');
+        }
+    };
+
+    // Función para recargar los servicios
+    function cargarServicios() {
+        fetch('/api/servicios')
+            .then(res => res.json())
+            .then(servicios => {
+                const contenedor = document.getElementById('contenedor-servicios');
+                contenedor.innerHTML = '';
+                servicios.forEach(servicio => {
+                    const div = document.createElement('div');
+                    div.className = 'etiqueta-servicio';
+                    div.innerHTML = `
+                        <h3>${servicio.nombre}</h3>
+                        <p>${servicio.descripcion}</p>
+                        <small><strong>Tipo:</strong> ${servicio.tipo}</small>
+                    `;
+                    contenedor.appendChild(div);
+                });
+            })
+            .catch(err => {
+                console.error('Error cargando servicios:', err);
+            });
+    }
+    </script>
+
+    <div id="contenedor-servicios" class="contenedor-servicios">
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                fetch('/api/servicios')
+                    .then(res => res.json())
+                    .then(servicios => {
+                        const contenedor = document.getElementById('contenedor-servicios');
+                        servicios.forEach(servicio => {
+                            const div = document.createElement('div');
+                            div.className = 'etiqueta-servicio';
+                            div.innerHTML = `
+                                <h3>${servicio.nombre}</h3>
+                                <p>${servicio.descripcion}</p>
+                                <small><strong>Tipo:</strong> ${servicio.tipo}</small>
+                            `;
+                            contenedor.appendChild(div);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Error cargando servicios:', err);
+                    });
+            });
         </script>
     </div>
-    <!-- Bootstrap JS CDN (opcional) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Script para AOS (Animate On Scroll) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script>
-        AOS.init({
-            duration: 800, // Duración de la animación
-            once: true // Solo animar una vez
-        });
-    </script>
 </body>
-
 </html>

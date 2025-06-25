@@ -115,24 +115,8 @@ app.get('/api/adminpanelinfo', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 //obtener los profesionales
 
-=======
-app.delete('/api/eliminar-turno/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const [result] = await pool.query('DELETE FROM turno WHERE id = ?', [id]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Turno no encontrado' });
-    }
-    res.json({ message: 'Turno eliminado exitosamente' });
-  } catch (err) {
-    console.error('Error al eliminar el turno:', err);
-    res.status(500).json({ error: 'Error en la base de datos' });
-  }
-});
->>>>>>> e19caa78a65135a35d65a1d4fe27f6234b4b28cc
 
 //cambiar el estado de un turno especifico de "Pendiente" a "Confirmado"
 app.put('/api/turnos/:id/confirmar', async (req, res) => {
@@ -167,7 +151,6 @@ app.get('/api/profesionales', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 app.delete('/api/eliminar-turno/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -223,8 +206,6 @@ app.listen(PORT, () => {
 });
 
 
-=======
->>>>>>> e19caa78a65135a35d65a1d4fe27f6234b4b28cc
 
 
 //creacion de cuenta de usuario (usando solo nombre, email y telefono)
@@ -294,6 +275,29 @@ app.post('/api/login', async (req, res) => {
     res.json({ success: true, turnos });
   } catch (err) {
     console.error('Error al iniciar sesión:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});
+
+// Agregar un nuevo servicio
+app.post('/api/agregar-servicio', async (req, res) => {
+  try {
+    const { nombre, descripcion, tipo, precio } = req.body;
+
+    // Validar que todos los campos estén presentes
+    if (!nombre || !descripcion || !tipo || !precio) {
+      return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
+    }
+
+    // Insertar el nuevo servicio
+    await pool.query(
+      'INSERT INTO servicios (nombre, descripcion, tipo, precio) VALUES (?, ?, ?, ?)',
+      [nombre, descripcion, tipo, precio]
+    );
+
+    res.json({ success: true, message: 'Servicio agregado correctamente.' });
+  } catch (err) {
+    console.error('Error al agregar servicio:', err);
     res.status(500).json({ success: false, message: 'Error en la base de datos.' });
   }
 });
