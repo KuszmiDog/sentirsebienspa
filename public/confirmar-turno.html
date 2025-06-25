@@ -10,6 +10,8 @@
     <div class="container mt-5">
         <h2>Confirmar Solicitud de Turno</h2>
         <div id="datos-turno" class="mb-4"></div>
+        <div id="turnos-agregados" class="mb-4"></div>
+        <button id="agregarTurnoBtn" class="btn btn-secondary mb-2">Agregar otro turno</button>
         <div id="pago-section" style="display:none;">
             <h4>Simular Pago</h4>
             <form id="pagoForm" class="mb-3">
@@ -35,70 +37,164 @@
         <button id="confirmarBtn" class="btn btn-success mb-2" style="display:none;">Confirmar y Solicitar Turno</button>
         <button id="descargarBtn" class="btn btn-primary" style="display:none;">Descargar PDF</button>
     </div>
+
+    <!-- Modal para agregar turno -->
+    <div class="modal fade" id="modalTurno" tabindex="-1" aria-labelledby="modalTurnoLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="formNuevoTurno">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalTurnoLabel">Agregar Nuevo Turno</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-2">
+                <label class="form-label">Servicio ID</label>
+                <input type="text" class="form-control" id="nuevoServicio" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Profesional ID</label>
+                <input type="text" class="form-control" id="nuevoProfesional" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="nuevoFecha" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Hora de Inicio</label>
+                <input type="time" class="form-control" id="nuevoHoraInicio" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Hora de Fin</label>
+                <input type="time" class="form-control" id="nuevoHoraFin" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="nuevoEmail" required>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Agregar Turno</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script>
-        // Cargar datos del turno
+        // Cambia la estructura para manejar múltiples turnos
+        let turnos = JSON.parse(localStorage.getItem('turnosData')) || [];
         const datos = JSON.parse(localStorage.getItem('turnoData'));
-        const datosDiv = document.getElementById('datos-turno');
-        if (!datos) {
-            datosDiv.innerHTML = '<div class="alert alert-danger">No hay datos de turno para confirmar.</div>';
-        } else {
-            datosDiv.innerHTML = `
-                <ul class="list-group">
-                    <li class="list-group-item"><strong>Email:</strong> ${datos.email}</li>
-                    <li class="list-group-item"><strong>Servicio:</strong> ${datos.servicio_id}</li>
-                    <li class="list-group-item"><strong>Profesional:</strong> ${datos.profesional_id}</li>
-                    <li class="list-group-item"><strong>Fecha:</strong> ${datos.fecha}</li>
-                    <li class="list-group-item"><strong>Hora de Inicio:</strong> ${datos.hora_inicio}</li>
-                    <li class="list-group-item"><strong>Hora de Fin:</strong> ${datos.hora_fin}</li>
-                </ul>
-            `;
-            // Consultar precio del servicio
-            fetch(`/api/servicios/${datos.servicio_id}`)
-                .then(res => res.json())
-                .then(servicio => {
-                    // Calcular si aplica descuento
-                    const fechaTurno = new Date(`${datos.fecha}T${datos.hora_inicio}`);
-                    const ahora = new Date();
-                    const ms48hs = 48 * 60 * 60 * 1000;
-                    let precioFinal = servicio.precio;
-                    let aplicaDescuento = false;
-
-                    if (fechaTurno - ahora > ms48hs) {
-                        aplicaDescuento = true;
-                        precioFinal = Math.round(servicio.precio * 0.85);
-                    }
-
-                    // Mostrar precios
-                    const precioServicioInput = document.getElementById('precioServicio');
-                    if (aplicaDescuento) {
-                        precioServicioInput.value = `${precioFinal} ARS (15% OFF)`;
-                        precioServicioInput.dataset.precio = precioFinal;
-                    } else {
-                        precioServicioInput.value = `${servicio.precio} ARS`;
-                        precioServicioInput.dataset.precio = servicio.precio;
-                    }
-
-                    // Mostrar mensaje informativo
-                    const infoDiv = document.createElement('div');
-                    infoDiv.className = 'alert alert-danger mt-2';
-                    infoDiv.innerHTML = `
-                        <ul style="margin-bottom:0;">
-                            <li>Si el pago se realiza por la web antes de las 48 hs del servicio se recibe un descuento del 15%.</li>
-                            <li>Solo se puede pagar a través de tarjeta de débito. Caso contrario se paga el precio de lista.</li>
-                        </ul>
-                    `;
-                    document.getElementById('pago-section').prepend(infoDiv);
-
-                    document.getElementById('pago-section').style.display = 'block';
-                })
-                .catch(() => {
-                    datosDiv.innerHTML += '<div class="alert alert-danger mt-2">No se pudo obtener el precio del servicio.</div>';
-                });
+        if (datos) {
+            turnos.push(datos);
+            localStorage.setItem('turnosData', JSON.stringify(turnos));
+            localStorage.removeItem('turnoData');
         }
 
-        // Validar y simular pago
+        const turnosDiv = document.getElementById('turnos-agregados');
+        async function mostrarTurnos() {
+            if (turnos.length === 0) {
+                turnosDiv.innerHTML = '<div class="alert alert-danger">No hay turnos para confirmar.</div>';
+                document.getElementById('pago-section').style.display = 'none';
+                return;
+            }
+            let html = '<h5>Turnos agregados:</h5><ul class="list-group">';
+            for (let i = 0; i < turnos.length; i++) {
+                const t = turnos[i];
+                // Obtener nombre del servicio
+                let servicioNombre = t.servicio_id;
+                let profesionalNombre = t.profesional_id;
+                try {
+                    const resServicio = await fetch(`/api/servicios/${t.servicio_id}`);
+                    const servicio = await resServicio.json();
+                    servicioNombre = servicio.nombre || t.servicio_id;
+                } catch {}
+                try {
+                    const resProfesional = await fetch(`/api/profesionales/${t.profesional_id}`);
+                    const profesional = await resProfesional.json();
+                    profesionalNombre = profesional.nombre || t.profesional_id;
+                } catch {}
+                html += `<li class="list-group-item">
+                    <strong>Servicio:</strong> ${servicioNombre} | 
+                    <strong>Profesional:</strong> ${profesionalNombre} | 
+                    <strong>Fecha:</strong> ${t.fecha} | 
+                    <strong>Hora:</strong> ${t.hora_inicio} - ${t.hora_fin}
+                    <button class="btn btn-sm btn-danger float-end" onclick="eliminarTurno(${i})">Eliminar</button>
+                </li>`;
+            }
+            html += '</ul>';
+            turnosDiv.innerHTML = html;
+        }
+
+        window.eliminarTurno = function(idx) {
+            turnos.splice(idx, 1);
+            localStorage.setItem('turnosData', JSON.stringify(turnos));
+            mostrarTurnos();
+            calcularPago();
+        };
+
+        document.getElementById('agregarTurnoBtn').onclick = function() {
+            const modal = new bootstrap.Modal(document.getElementById('modalTurno'));
+            modal.show();
+        };
+
+        // Calcular si todos los turnos son el mismo día
+        async function calcularPago() {
+            if (turnos.length === 0) return;
+            const fechas = turnos.map(t => t.fecha);
+            const mismoDia = fechas.every(f => f === fechas[0]);
+            let total = 0;
+            let aplicaDescuento = false;
+            let detalles = [];
+            for (const t of turnos) {
+                const res = await fetch(`/api/servicios/${t.servicio_id}`);
+                const servicio = await res.json();
+                let precio = servicio.precio;
+                const fechaTurno = new Date(`${t.fecha}T${t.hora_inicio}`);
+                const ahora = new Date();
+                const ms48hs = 48 * 60 * 60 * 1000;
+                if (fechaTurno - ahora > ms48hs) {
+                    precio = Math.round(precio * 0.85);
+                    aplicaDescuento = true;
+                }
+                total += precio;
+                detalles.push(`${servicio.nombre}: ${precio} ARS`);
+            }
+            const precioServicioInput = document.getElementById('precioServicio');
+            if (mismoDia) {
+                precioServicioInput.value = `${total} ARS${aplicaDescuento ? ' (15% OFF)' : ''}`;
+                precioServicioInput.dataset.precio = total;
+                document.getElementById('pago-section').style.display = 'block';
+                document.getElementById('pagarBtn').disabled = false;
+            } else {
+                precioServicioInput.value = 'No disponible (turnos en días distintos)';
+                precioServicioInput.dataset.precio = '';
+                document.getElementById('pago-section').style.display = 'block';
+                document.getElementById('pagarBtn').disabled = true;
+            }
+            // Mensaje informativo
+            let info = `<div class="alert alert-danger mt-2">
+                <ul style="margin-bottom:0;">
+                    <li>Si el pago se realiza por la web antes de las 48 hs del servicio se recibe un descuento del 15%.</li>
+                    <li>Solo se puede pagar a través de tarjeta de débito. Caso contrario se paga el precio de lista.</li>
+                    <li>El cliente puede seleccionar más de un servicio. En este caso se puede realizar un solo pago siempre y cuando se realicen las atenciones en el mismo día. Si el servicio es en distintos días se paga por separado.</li>
+                </ul>
+            </div>`;
+            document.getElementById('pago-section').querySelectorAll('.alert').forEach(e => e.remove());
+            document.getElementById('pago-section').prepend(document.createRange().createContextualFragment(info));
+        }
+
+        mostrarTurnos();
+        calcularPago();
+
+        // Modifica el submit del pago para enviar todos los turnos
         document.getElementById('pagoForm').onsubmit = function(e) {
             e.preventDefault();
+            if (document.getElementById('pagarBtn').disabled) {
+                alert('No se puede pagar turnos en días distintos juntos.');
+                return;
+            }
             const tarjeta = document.getElementById('tarjeta').value.trim();
             const codigo = document.getElementById('codigo').value.trim();
             const caducidad = document.getElementById('caducidad').value.trim();
@@ -127,52 +223,85 @@
             document.getElementById('pago-section').style.display = 'none';
         };
 
-        // Confirmar y enviar al backend
+        // Modifica el confirmar para enviar todos los turnos
         document.getElementById('confirmarBtn').onclick = async function() {
-            if (!datos) return;
-            const turnoData = {
-                servicio_id: datos.servicio_id,
-                profesional_id: datos.profesional_id,
-                fecha_inicio: `${datos.fecha}T${datos.hora_inicio}`,
-                fecha_finalizacion: `${datos.fecha}T${datos.hora_fin}`,
-                email: datos.email,
-                estado: 'pendiente'
-            };
-            const response = await fetch('/api/turnos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(turnoData)
-            });
-            if (response.ok) {
-                alert('Turno solicitado exitosamente.');
-                document.getElementById('descargarBtn').style.display = 'inline-block';
-                this.style.display = 'none';
-            } else {
-                const error = await response.json();
-                alert('Error al solicitar turno: ' + error.error);
+            for (const t of turnos) {
+                const turnoData = {
+                    servicio_id: t.servicio_id,
+                    profesional_id: t.profesional_id,
+                    fecha_inicio: `${t.fecha}T${t.hora_inicio}`,
+                    fecha_finalizacion: `${t.fecha}T${t.hora_fin}`,
+                    email: t.email,
+                    estado: 'pendiente'
+                };
+                await fetch('/api/turnos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(turnoData)
+                });
             }
+            alert('Turnos solicitados exitosamente.');
+            document.getElementById('descargarBtn').style.display = 'inline-block';
+            this.style.display = 'none';
+            localStorage.removeItem('turnosData');
         };
 
-        // Descargar PDF
+        // Modifica el PDF para mostrar todos los turnos
         document.getElementById('descargarBtn').onclick = function() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            //nombre del spa
             doc.setFontSize(16);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(40);
-            // Título del PDF
+            doc.text('- Comprobante de Solicitud de Turnos - SPA Sentirse Bien -', 10, 10);
+            let y = 20;
+            turnos.forEach((t, idx) => {
+                doc.setFontSize(12);
+                doc.text(`Turno ${idx + 1}:`, 10, y);
+                y += 8;
+                doc.text(`Email: ${t.email}`, 10, y);
+                y += 8;
+                doc.text(`Servicio: ${t.servicio_id}`, 10, y);
+                y += 8;
+                doc.text(`Profesional: ${t.profesional_id}`, 10, y);
+                y += 8;
+                doc.text(`Fecha: ${t.fecha}`, 10, y);
+                y += 8;
+                doc.text(`Hora de Inicio: ${t.hora_inicio}`, 10, y);
+                y += 8;
+                doc.text(`Hora de Fin: ${t.hora_fin}`, 10, y);
+                y += 10;
+            });
+            doc.text(`Precio total: ${document.getElementById('precioServicio').value}`, 10, y);
+            doc.save('comprobante-turnos.pdf');
+        };
 
-            doc.text('- Comprobante de Solicitud de Turno - SPA Sentirse Bien -', 10, 10);
-            doc.text(`Email: ${datos.email}`, 10, 20);
-            doc.text(`Servicio: ${datos.servicio_id}`, 10, 30);
-            doc.text(`Profesional: ${datos.profesional_id}`, 10, 40);
-            doc.text(`Fecha: ${datos.fecha}`, 10, 50);
-            doc.text(`Hora de Inicio: ${datos.hora_inicio}`, 10, 60);
-            doc.text(`Hora de Fin: ${datos.hora_fin}`, 10, 70);
-            doc.text(`Precio del Servicio: ${document.getElementById('precioServicio').value}`, 10, 80);
-            doc.save('comprobante-turno.pdf');
+        document.getElementById('formNuevoTurno').onsubmit = function(e) {
+            e.preventDefault();
+            const nuevoTurno = {
+                servicio_id: document.getElementById('nuevoServicio').value.trim(),
+                profesional_id: document.getElementById('nuevoProfesional').value.trim(),
+                fecha: document.getElementById('nuevoFecha').value,
+                hora_inicio: document.getElementById('nuevoHoraInicio').value,
+                hora_fin: document.getElementById('nuevoHoraFin').value,
+                email: document.getElementById('nuevoEmail').value.trim()
+            };
+            // Validación simple
+            if (!nuevoTurno.servicio_id || !nuevoTurno.profesional_id || !nuevoTurno.fecha ||
+                !nuevoTurno.hora_inicio || !nuevoTurno.hora_fin || !nuevoTurno.email) {
+                alert('Completa todos los campos.');
+                return;
+            }
+            turnos.push(nuevoTurno);
+            localStorage.setItem('turnosData', JSON.stringify(turnos));
+            mostrarTurnos();
+            calcularPago();
+            // Cierra el modal
+            bootstrap.Modal.getInstance(document.getElementById('modalTurno')).hide();
+            // Limpia el formulario
+            this.reset();
         };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
