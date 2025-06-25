@@ -247,7 +247,7 @@
         };
 
         // Modifica el PDF para mostrar todos los turnos
-        document.getElementById('descargarBtn').onclick = function() {
+        document.getElementById('descargarBtn').onclick = async function() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.setFontSize(16);
@@ -255,15 +255,33 @@
             doc.setTextColor(40);
             doc.text('- Comprobante de Solicitud de Turnos - SPA Sentirse Bien -', 10, 10);
             let y = 20;
-            turnos.forEach((t, idx) => {
+
+            // Obtener nombres de servicios y profesionales
+            const turnosConNombres = await Promise.all(turnos.map(async (t) => {
+                let servicioNombre = t.servicio_id;
+                let profesionalNombre = t.profesional_id;
+                try {
+                    const resServicio = await fetch(`/api/servicios/${t.servicio_id}`);
+                    const servicio = await resServicio.json();
+                    servicioNombre = servicio.nombre || t.servicio_id;
+                } catch {}
+                try {
+                    const resProfesional = await fetch(`/api/profesionales/${t.profesional_id}`);
+                    const profesional = await resProfesional.json();
+                    profesionalNombre = profesional.nombre || t.profesional_id;
+                } catch {}
+                return { ...t, servicioNombre, profesionalNombre };
+            }));
+
+            turnosConNombres.forEach((t, idx) => {
                 doc.setFontSize(12);
                 doc.text(`Turno ${idx + 1}:`, 10, y);
                 y += 8;
                 doc.text(`Email: ${t.email}`, 10, y);
                 y += 8;
-                doc.text(`Servicio: ${t.servicio_id}`, 10, y);
+                doc.text(`Servicio: ${t.servicioNombre}`, 10, y);
                 y += 8;
-                doc.text(`Profesional: ${t.profesional_id}`, 10, y);
+                doc.text(`Profesional: ${t.profesionalNombre}`, 10, y);
                 y += 8;
                 doc.text(`Fecha: ${t.fecha}`, 10, y);
                 y += 8;
