@@ -56,7 +56,39 @@
             fetch(`/api/servicios/${datos.servicio_id}`)
                 .then(res => res.json())
                 .then(servicio => {
-                    document.getElementById('precioServicio').value = servicio.precio + ' ARS';
+                    // Calcular si aplica descuento
+                    const fechaTurno = new Date(`${datos.fecha}T${datos.hora_inicio}`);
+                    const ahora = new Date();
+                    const ms48hs = 48 * 60 * 60 * 1000;
+                    let precioFinal = servicio.precio;
+                    let aplicaDescuento = false;
+
+                    if (fechaTurno - ahora > ms48hs) {
+                        aplicaDescuento = true;
+                        precioFinal = Math.round(servicio.precio * 0.85);
+                    }
+
+                    // Mostrar precios
+                    const precioServicioInput = document.getElementById('precioServicio');
+                    if (aplicaDescuento) {
+                        precioServicioInput.value = `${precioFinal} ARS (15% OFF)`;
+                        precioServicioInput.dataset.precio = precioFinal;
+                    } else {
+                        precioServicioInput.value = `${servicio.precio} ARS`;
+                        precioServicioInput.dataset.precio = servicio.precio;
+                    }
+
+                    // Mostrar mensaje informativo
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'alert alert-danger mt-2';
+                    infoDiv.innerHTML = `
+                        <ul style="margin-bottom:0;">
+                            <li>Si el pago se realiza por la web antes de las 48 hs del servicio se recibe un descuento del 15%.</li>
+                            <li>Solo se puede pagar a través de tarjeta de débito. Caso contrario se paga el precio de lista.</li>
+                        </ul>
+                    `;
+                    document.getElementById('pago-section').prepend(infoDiv);
+
                     document.getElementById('pago-section').style.display = 'block';
                 })
                 .catch(() => {
