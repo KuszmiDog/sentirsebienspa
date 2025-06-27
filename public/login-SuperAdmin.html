@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Super Administrador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: whitesmoke;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 60px auto;
+            padding: 30px;
+            background: #bebebe;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .form-title {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-transparent"
+        style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1030; backdrop-filter: blur(6px);"
+        data-aos="fade-down" data-aos-duration="450">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/index.html" style="font-weight: 200; font-size: 30px;">Sentirse Bien</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="line-gap-override: 100;">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#" style="font-weight: 100; font-size: 20px;">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/index.html#contenedor-servicios" style="font-weight: 100; font-size: 20px;">Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" style="font-weight: 100; font-size: 20px;">Acerca De</a>
+                    </li>
+                    <li class="nav-item ms-auto">
+                        <a class="nav-link" href="/cuenta.html" style="font-weight: 100; font-size: 20px;">Cuenta de Usuario</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav> <!-- Fin del Navbar -->
+
+    <div class="form-container" style="margin-top: 150px;">
+        <h2 class="form-title" style="font-weight: 400">Ingreso de Super Administrador</h2>
+        <form id="superadmin-login-form">
+            <div class="mb-3">
+                <label for="email" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="email" name="email" required autocomplete="username">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+            <button type="submit" class="btn btn-primary w-100" style="color: rgb(255, 255, 255); border-color: rgb(88, 88, 88); background-color: rgb(79, 72, 117);">Ingresar</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS CDN (opcional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script para AOS (Animate On Scroll) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        document.getElementById('superadmin-login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const usuario = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('login-error');
+            if (usuario === 'admin' && password === 'admin') {
+                window.location.href = 'PanelAdmin.html';
+            } else {
+                errorDiv.textContent = 'Usuario o contraseña incorrectos.';
+                errorDiv.classList.remove('d-none');
+            }
+        });
+    </script>
+</body>
+</html>
