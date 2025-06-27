@@ -161,6 +161,7 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                 <button id="btn-imprimir-turnos" class="btn btn-primary">Imprimir PDF</button>
+                                <button id="btn-turnos-dia" class="btn btn-info">Turnos del Día</button>
                             </div>
                         
                         </div>
@@ -237,6 +238,72 @@
                     });
 
                     doc.save('turnos-profesional.pdf');
+                });
+
+                // Manejar el click en el botón "Turnos del Día"
+                document.getElementById('btn-turnos-dia').addEventListener('click', async function() {
+                    // Busca el id del profesional logueado (puedes obtenerlo de la respuesta del login)
+                    const profesionalId = data.profesionalId || data.id || data.profesional?.id || data.profesional_id;
+                    if (!profesionalId) {
+                        alert('No se pudo determinar el profesional.');
+                        return;
+                    }
+                    // Obtener la fecha de hoy en formato YYYY-MM-DD
+                    const hoy = new Date();
+                    const yyyy = hoy.getFullYear();
+                    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+                    const dd = String(hoy.getDate()).padStart(2, '0');
+                    const fechaHoy = `${yyyy}-${mm}-${dd}`;
+
+                    try {
+                        const res = await fetch(`/api/turnodeldia?profesional_id=${profesionalId}&fecha=${fechaHoy}`);
+                        const turnosDia = await res.json();
+                        if (!Array.isArray(turnosDia) || turnosDia.length === 0) {
+                            alert('No hay turnos para hoy.');
+                            return;
+                        }
+                        let html = `<h5>Turnos del Día (${fechaHoy})</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Servicio</th>
+                                    <th>Cliente</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                        turnosDia.forEach(turno => {
+                            html += `<tr>
+                                <td>${turno.hora}</td>
+                                <td>${turno.servicio}</td>
+                                <td>${turno.cliente}</td>
+                                <td>${turno.ESTADO || 'Pendiente'}</td>
+                            </tr>`;
+                        });
+                        html += '</tbody></table>';
+                        // Mostrar en un modal simple
+                        const modalTurnosDia = document.createElement('div');
+                        modalTurnosDia.className = 'modal fade';
+                        modalTurnosDia.innerHTML = `
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Turnos del Día</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">${html}</div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(modalTurnosDia);
+                        new bootstrap.Modal(modalTurnosDia).show();
+                    } catch (err) {
+                        alert('Error al obtener los turnos del día.');
+                    }
                 });
             } else {
                 alert('Error al iniciar sesión: ' + data.message);

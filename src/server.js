@@ -272,7 +272,8 @@ app.post('/api/login', async (req, res) => {
       [profesional[0].id]
     );
 
-    res.json({ success: true, turnos });
+    // Incluye el profesional en la respuesta
+    res.json({ success: true, profesional: profesional[0], turnos });
   } catch (err) {
     console.error('Error al iniciar sesión:', err);
     res.status(500).json({ success: false, message: 'Error en la base de datos.' });
@@ -390,6 +391,36 @@ app.delete('/api/eliminar-profesional/:id', async (req, res) => {
     res.json({ success: true, message: 'Profesional eliminado correctamente.' });
   } catch (err) {
     console.error('Error al eliminar profesional:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});
+
+// Obtener turnos del día para un profesional
+app.get('/api/turnodeldia', async (req, res) => {
+  try {
+    const { profesional_id, fecha } = req.query;
+    if (!profesional_id || !fecha) {
+      return res.status(400).json({ success: false, message: 'Faltan parámetros.' });
+    }
+
+    const [turnos] = await pool.query(
+      `SELECT 
+          t.id,
+          t.fecha_inicio AS fecha,
+          DATE_FORMAT(t.fecha_inicio, "%H:%i") AS hora,
+          s.nombre AS servicio,
+          c.nombre AS cliente,
+          t.estado AS ESTADO
+        FROM turno t
+        JOIN servicios s ON t.servicio_id = s.id
+        JOIN clientes c ON t.cliente_id = c.id
+        WHERE t.profesional_id = ? AND DATE(t.fecha_inicio) = ?`,
+      [profesional_id, fecha]
+    );
+
+    res.json(turnos);
+  } catch (err) {
+    console.error('Error al obtener turnos del día:', err);
     res.status(500).json({ success: false, message: 'Error en la base de datos.' });
   }
 });
