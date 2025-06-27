@@ -143,11 +143,11 @@ app.put('/api/turnos/:id/confirmar', async (req, res) => {
 //obtener los profesionales
 app.get('/api/profesionales', async (req, res) => {
   try {
-      const [rows] = await pool.query('SELECT id, nombre FROM Profesional');
-      res.json(rows);
+    const [rows] = await pool.query('SELECT id, nombre, email, telefono, fecha_registro FROM Profesional');
+    res.json(rows);
   } catch (err) {
-      console.error('Error al consultar profesionales:', err);
-      res.status(500).json({ error: 'Error en la base de datos' });
+    console.error('Error al obtener profesionales:', err);
+    res.status(500).json({ error: 'Error en la base de datos' });
   }
 });
 
@@ -343,6 +343,53 @@ app.post('/api/agregar-profesional', async (req, res) => {
     res.json({ success: true, message: 'Profesional agregado correctamente.' });
   } catch (err) {
     console.error('Error al agregar profesional:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});
+
+// Obtener clientes
+app.get('/api/clientes', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT id, nombre, email, telefono, fecha_registro FROM clientes');
+    res.json(rows);
+  } catch (err) {
+    console.error('Error al obtener clientes:', err);
+    res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+
+// Eliminar un cliente por ID (elimina primero los turnos asociados)
+app.delete('/api/eliminar-cliente/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Eliminar turnos asociados
+    await pool.query('DELETE FROM turno WHERE cliente_id = ?', [id]);
+    // Eliminar cliente
+    const [result] = await pool.query('DELETE FROM clientes WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Cliente no encontrado.' });
+    }
+    res.json({ success: true, message: 'Cliente eliminado correctamente.' });
+  } catch (err) {
+    console.error('Error al eliminar cliente:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});
+
+// Eliminar un profesional por ID (elimina primero los turnos asociados)
+app.delete('/api/eliminar-profesional/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Eliminar turnos asociados
+    await pool.query('DELETE FROM turno WHERE profesional_id = ?', [id]);
+    // Eliminar profesional
+    const [result] = await pool.query('DELETE FROM Profesional WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Profesional no encontrado.' });
+    }
+    res.json({ success: true, message: 'Profesional eliminado correctamente.' });
+  } catch (err) {
+    console.error('Error al eliminar profesional:', err);
     res.status(500).json({ success: false, message: 'Error en la base de datos.' });
   }
 });
