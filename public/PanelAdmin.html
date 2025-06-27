@@ -213,6 +213,16 @@
         <button id="btn-agregar-servicio" class="btn btn-success">Agregar Servicio</button>
     </div>
 
+    <!-- Formulario para agregar un nuevo profesional -->
+    <div id="form-agregar-profesional" style="display: flex; gap: 10px; justify-content: center; align-items: center; margin: 40px 0 20px 0;">
+        <input type="text" id="prof-nombre" class="form-control" placeholder="Nombre del profesional" style="max-width: 180px;">
+        <input type="email" id="prof-email" class="form-control" placeholder="Email" style="max-width: 220px;">
+        <input type="text" id="prof-telefono" class="form-control" placeholder="Teléfono" style="max-width: 140px;">
+        <input type="datetime-local" id="prof-fecha" class="form-control" placeholder="Fecha de registro" style="max-width: 200px;">
+        <input type="password" id="prof-password" class="form-control" placeholder="Contraseña" style="max-width: 140px;">
+        <button id="btn-agregar-profesional" class="btn btn-primary">Agregar Profesional</button>
+    </div>
+
     <script>
     document.getElementById('btn-agregar-servicio').onclick = async function() {
         const nombre = document.getElementById('nuevo-nombre').value.trim();
@@ -249,6 +259,42 @@
         }
     };
 
+    // --- Agregar profesional ---
+    document.getElementById('btn-agregar-profesional').onclick = async function() {
+        const nombre = document.getElementById('prof-nombre').value.trim();
+        const email = document.getElementById('prof-email').value.trim();
+        const telefono = document.getElementById('prof-telefono').value.trim();
+        const fecha_registro = document.getElementById('prof-fecha').value.trim();
+        const password = document.getElementById('prof-password').value.trim();
+
+        if (!nombre || !email || !telefono || !fecha_registro || !password) {
+            alert('Todos los campos son obligatorios.');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/agregar-profesional', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, email, telefono, fecha_registro, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Profesional agregado correctamente.');
+                // Limpiar campos
+                document.getElementById('prof-nombre').value = '';
+                document.getElementById('prof-email').value = '';
+                document.getElementById('prof-telefono').value = '';
+                document.getElementById('prof-fecha').value = '';
+                document.getElementById('prof-password').value = '';
+            } else {
+                alert(data.message || 'Error al agregar el profesional.');
+            }
+        } catch (err) {
+            alert('Error al agregar el profesional.');
+        }
+    };
+
     // Función para recargar los servicios
     function cargarServicios() {
         fetch('/api/servicios')
@@ -259,12 +305,38 @@
                 servicios.forEach(servicio => {
                     const div = document.createElement('div');
                     div.className = 'etiqueta-servicio';
+                    div.style.position = 'relative';
                     div.innerHTML = `
                         <h3>${servicio.nombre}</h3>
                         <p>${servicio.descripcion}</p>
                         <small><strong>Tipo:</strong> ${servicio.tipo}</small>
+                        <button class="btn btn-danger btn-sm btn-eliminar-servicio" 
+                            style="position: absolute; bottom: 10px; right: 10px; border-radius: 50%; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;"
+                            data-id="${servicio.id || servicio.ID_SERVICIO}">
+                            <span style="font-size: 1.2em;">&times;</span>
+                        </button>
                     `;
                     contenedor.appendChild(div);
+                });
+
+                // Agregar eventos a los botones de eliminar
+                contenedor.querySelectorAll('.btn-eliminar-servicio').forEach(btn => {
+                    btn.addEventListener('click', async function(e) {
+                        e.stopPropagation();
+                        const id = this.getAttribute('data-id');
+                        if (confirm('¿Está seguro de eliminar este servicio?')) {
+                            try {
+                                const res = await fetch(`/api/eliminar-servicio/${id}`, { method: 'DELETE' });
+                                if (res.ok) {
+                                    this.closest('.etiqueta-servicio').remove();
+                                } else {
+                                    alert('No se pudo eliminar el servicio.');
+                                }
+                            } catch (err) {
+                                alert('Error al eliminar el servicio.');
+                            }
+                        }
+                    });
                 });
             })
             .catch(err => {
@@ -276,24 +348,7 @@
     <div id="contenedor-servicios" class="contenedor-servicios">
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                fetch('/api/servicios')
-                    .then(res => res.json())
-                    .then(servicios => {
-                        const contenedor = document.getElementById('contenedor-servicios');
-                        servicios.forEach(servicio => {
-                            const div = document.createElement('div');
-                            div.className = 'etiqueta-servicio';
-                            div.innerHTML = `
-                                <h3>${servicio.nombre}</h3>
-                                <p>${servicio.descripcion}</p>
-                                <small><strong>Tipo:</strong> ${servicio.tipo}</small>
-                            `;
-                            contenedor.appendChild(div);
-                        });
-                    })
-                    .catch(err => {
-                        console.error('Error cargando servicios:', err);
-                    });
+                cargarServicios();
             });
         </script>
     </div>

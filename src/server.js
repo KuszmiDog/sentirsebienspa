@@ -302,4 +302,49 @@ app.post('/api/agregar-servicio', async (req, res) => {
   }
 });
 
+// Eliminar un servicio por ID
+app.delete('/api/eliminar-servicio/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Puedes agregar validaciones adicionales si lo deseas
+    const [result] = await pool.query('DELETE FROM servicios WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Servicio no encontrado.' });
+    }
+    res.json({ success: true, message: 'Servicio eliminado correctamente.' });
+  } catch (err) {
+    console.error('Error al eliminar servicio:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});
+
+// Agregar un nuevo profesional
+app.post('/api/agregar-profesional', async (req, res) => {
+  try {
+    const { nombre, email, telefono, fecha_registro, password } = req.body;
+
+    // Validar que todos los campos estén presentes
+    if (!nombre || !email || !telefono || !fecha_registro || !password) {
+      return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
+    }
+
+    // Verificar si el email ya existe
+    const [existe] = await pool.query('SELECT id FROM Profesional WHERE email = ?', [email]);
+    if (existe.length > 0) {
+      return res.status(400).json({ success: false, message: 'El email ya está registrado.' });
+    }
+
+    // Insertar el nuevo profesional
+    await pool.query(
+      'INSERT INTO Profesional (nombre, email, telefono, fecha_registro, password) VALUES (?, ?, ?, ?, ?)',
+      [nombre, email, telefono, fecha_registro, password]
+    );
+
+    res.json({ success: true, message: 'Profesional agregado correctamente.' });
+  } catch (err) {
+    console.error('Error al agregar profesional:', err);
+    res.status(500).json({ success: false, message: 'Error en la base de datos.' });
+  }
+});
+
 
